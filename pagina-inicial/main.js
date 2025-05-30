@@ -30,7 +30,7 @@ function create() {
 
     // POSICIONAMENTO DO BOTÃO
     const buttonX = width / 2;
-const buttonY = height * 0.8;
+const buttonY = height * 0.45;
 
 
     const playButton = this.add.image(buttonX, buttonY, 'play_button')
