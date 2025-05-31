@@ -9,8 +9,12 @@ resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
 // Fundo
-const bgImg = new Image();
-bgImg.src = "assets/background.png";
+const backgrounds = [
+  { image: new Image(), src: "assets/background.png" },       // fase 1
+  { image: new Image(), src: "assets/background2.png" }  // fase 2
+];
+let currentBackground = 0;
+backgrounds.forEach(bg => bg.image.src = bg.src);
 
 // Teclado
 const keys = {};
@@ -34,6 +38,58 @@ const player = {
   shadowOffsetY: 0.88, // valor padrão para posição da sombra nos pés
 
 };
+const portalConfigs = [
+  { x: canvas.width - 120, y: 70 },                              // Fase 1
+  { x: canvas.width / 2 - 64, y: canvas.height - 140 },         // Fase 2 (meio inferior)
+  // Adicione mais posições aqui para fases futuras
+];
+
+const portal = {
+  x: portalConfigs[0].x,
+  y: portalConfigs[0].y,
+  width: 128,
+  height: 128,
+  image: new Image(),
+};
+portal.image.src = "assets/portal.png";
+
+portal.image.src = "assets/portal.png";
+
+
+function isColliding(a, b) {
+  const buffer = 40; // reduz o tamanho efetivo da colisão
+  return (
+    a.x < b.x + b.width - buffer &&
+    a.x + a.width > b.x + buffer &&
+    a.y < b.y + b.height - buffer &&
+    a.y + a.height > b.y + buffer
+  );
+}
+//Sombra portal
+function drawPortalShadow() {
+  const shadowWidth = portal.width * 0.8;
+  const shadowHeight = portal.height * 0.30;
+
+  const shadowX = portal.x + (portal.width - shadowWidth) / 2;
+  const shadowY = portal.y + portal.height - shadowHeight * 0.8;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+  ctx.beginPath();
+  ctx.ellipse(
+    shadowX + shadowWidth / 2,
+    shadowY + shadowHeight / 2,
+    shadowWidth / 2,
+    shadowHeight / 2,
+    0,
+    0,
+    Math.PI * 2
+  );
+  ctx.fill();
+  ctx.restore();
+}
+
+
 
 
 // Contador de sprites carregadas
@@ -69,10 +125,12 @@ loadSprite(`attack2_${dir}`, `assets/player/attack2_${dir}.png`, 8);
 
 // Fundo
 function drawBackground() {
-  if (bgImg.complete) {
-    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+  const bg = backgrounds[currentBackground].image;
+  if (bg.complete) {
+    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
   }
 }
+
 
 
 // Player
@@ -218,8 +276,29 @@ function updatePlayer() {
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
+drawPortalShadow();  // ⬅️ sombra antes do portal
+ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
+
+  //Verificar colisão do portal
+ if (isColliding(player, portal)) {
+  // Vai para a próxima fase
+  currentBackground = (currentBackground + 1) % backgrounds.length;
+
+  // Atualiza posição do portal com base na nova fase
+  const config = portalConfigs[currentBackground] || portalConfigs[0];
+  portal.x = config.x;
+  portal.y = config.y;
+
+  // Posiciona o jogador
+  player.x = 50;
+  player.y = 50;
+}
+
+
   updatePlayer();
-  drawShadow();  // <-- desenha a sombra antes do jogador
+  drawShadow();  
   drawPlayer();
+
   requestAnimationFrame(gameLoop);
 }
+
