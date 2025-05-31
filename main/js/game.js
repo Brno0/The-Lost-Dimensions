@@ -34,7 +34,7 @@ const player = {
   animations: {},
   width: 64,
   height: 64, 
-  scale: 2.5,
+  scale: 2.0,
   shadowOffsetY: 0.88, // valor padrão para posição da sombra nos pés
 
 };

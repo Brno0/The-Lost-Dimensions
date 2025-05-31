@@ -16,10 +16,9 @@ class Sprite {
     update() {
         this.velocity.y += gravity
 
-        // Verifica colisão com o chão
         if (this.position.y + this.height + this.velocity.y >= canvas.height) {
             this.velocity.y = 0
-            this.position.y = canvas.height - this.height // Alinha no chão
+            this.position.y = canvas.height - this.height 
         } else {
             this.position.y += this.velocity.y
         }
@@ -37,7 +36,7 @@ class Fighter extends Sprite {
             dimensions
         })
 
-        this.lastKeyPressed = '' // Corrigido
+        this.lastKeyPressed = ''
     }
 }
 
