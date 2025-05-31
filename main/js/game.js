@@ -24,13 +24,13 @@ const player = {
   frame: 0,
   frameDelay: 4,
   frameCounter: 0,
-  speed: 3.5,
+  speed: 2.8,
   direction: "down",
   state: "idle_down",
   animations: {},
   width: 64,
   height: 64, 
-  scale: 1.9,
+  scale: 2.5,
   shadowOffsetY: 0.88, // valor padrão para posição da sombra nos pés
 
 };

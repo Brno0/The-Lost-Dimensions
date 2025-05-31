@@ -50,6 +50,10 @@ let mensagemMostrada = false;
 let fadeOutHagnar = false;
 let fadeOutAlpha = 1;
 
+// Contagem para redirecionar ao jogo
+let redirecionou = false;
+const WAIT_BEFORE_REDIRECT = 2;
+
 // Preload
 Object.values(assets).forEach((img) => {
     img.onload = () => {
@@ -193,6 +197,13 @@ function gameLoop() {
         ctx.fillStyle = '#FFFFFF';
         ctx.textAlign = 'center';
         ctx.fillText("Iniciando a primeira fase !", width / 2, height / 2);
+    
+        tempoMensagem += 1 / 60;
+        if (tempoMensagem >= WAIT_BEFORE_REDIRECT && !redirecionou) {
+            redirecionou = true;
+            // Redireciona para o jogo em “../main/index.html”
+            window.location.href = '../main/index.html';
+        }
     }
 
     requestAnimationFrame(gameLoop);
