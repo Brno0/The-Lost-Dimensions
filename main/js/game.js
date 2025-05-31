@@ -22,7 +22,7 @@ const player = {
   x: 100,
   y: 100,
   frame: 0,
-  frameDelay: 8,
+  frameDelay: 4,
   frameCounter: 0,
   speed: 3.5,
   direction: "down",
@@ -30,7 +30,7 @@ const player = {
   animations: {},
   width: 64,
   height: 64,
-  scale: 1.8 // <--- Aumenta 1.5x (ajuste como preferir)
+  scale: 1.9 
 };
 
 
