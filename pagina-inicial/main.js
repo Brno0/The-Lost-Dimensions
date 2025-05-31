@@ -1,119 +1,206 @@
-const config = {
-    type: Phaser.AUTO,
-    parent: 'game-container',
-    scale: {
-        mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    },
-    scene: {
-        preload,
-        create
-    }
+const canvas = document.getElementById('gameCanvas'); 
+const ctx = canvas.getContext('2d');
+
+let width = window.innerWidth;
+let height = window.innerHeight;
+canvas.width = width;
+canvas.height = height;
+
+// Assets
+const assets = {
+    background: new Image(),
+    play_button: new Image(),
+    dicas_button: new Image(),
+    painel_dicas: new Image(),
+    intro_transition: new Image() // Hagnar
 };
 
-const game = new Phaser.Game(config);
+assets.background.src = 'assets/intro.png';
+assets.play_button.src = 'assets/button_play.png';
+assets.dicas_button.src = 'assets/buttonDicas.png';
+assets.painel_dicas.src = 'assets/dicasThelost.png';
+assets.intro_transition.src = 'assets/começandoHagnar.png';
 
-function preload() {
-    console.log('Preloading assets...');
-    this.load.image('background', 'assets/introthelost.png');
-    this.load.image('play_button', 'assets/button_play.png');
-    this.load.image('dicas_button', 'assets/buttonDicas.png'); // nova imagem
-    this.load.image('painel_dicas', 'assets/dicasThelost.png');
+let assetsLoaded = 0;
+const totalAssets = Object.keys(assets).length;
 
+// Estados
+let dicasVisivel = false;
+let playButtonArea = null;
+let dicasButtonArea = null;
+let playScale = 0.4;
+let scaleDirection = 1;
+let mouseX = 0;
+let mouseY = 0;
+let dicasScale = 0.1;
+const baseScale = 0.1;
+const hoverScale = 0.12;
+const transitionSpeed = 0.01;
+
+let isTransitioning = false;
+let transitionAlpha = 0;
+let transitionDone = false;
+
+// Mensagem pós-transição
+let mostrarMensagem = false;
+let tempoMensagem = 0;
+let mensagemMostrada = false;
+
+// Nova transição: fade-out da imagem do Hagnar
+let fadeOutHagnar = false;
+let fadeOutAlpha = 1;
+
+// Preload
+Object.values(assets).forEach((img) => {
+    img.onload = () => {
+        assetsLoaded++;
+        if (assetsLoaded === totalAssets) {
+            requestAnimationFrame(gameLoop);
+        }
+    };
+});
+
+// Eventos
+canvas.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
+
+canvas.addEventListener('click', (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+
+    if (isInside(x, y, playButtonArea) && !isTransitioning && !transitionDone) {
+        isTransitioning = true;
+    }
+
+    if (isInside(x, y, dicasButtonArea)) {
+        dicasVisivel = !dicasVisivel;
+    } else if (dicasVisivel) {
+        dicasVisivel = false;
+    }
+});
+
+function isInside(x, y, area) {
+    return area &&
+        x >= area.x && x <= area.x + area.width &&
+        y >= area.y && y <= area.y + area.height;
 }
 
-function create() {
-    const { width, height } = this.scale;
+function drawButton(img, centerX, centerY, scale) {
+    const width = img.width * scale;
+    const height = img.height * scale;
+    const x = centerX - width / 2;
+    const y = centerY - height / 2;
 
-    const bg = this.add.image(0, 0, 'background').setOrigin(0, 0);
-    bg.setDisplaySize(width, height);
-    bg.setScrollFactor(0);
+    ctx.drawImage(img, x, y, width, height);
 
-    // Botão Play
-    const buttonX = width / 2;
-    const buttonY = height * 0.85;
+    return { x, y, width, height };
+}
 
-    const playButton = this.add.image(buttonX, buttonY, 'play_button')
-        .setInteractive()
-        .setScale(0.1);
+function gameLoop() {
+    ctx.clearRect(0, 0, width, height);
 
-    this.tweens.add({
-        targets: playButton,
-        scale: { from: 0.4, to: 0.45 },
-        duration: 800,
-        ease: 'Sine.easeInOut',
-        yoyo: true,
-        repeat: -1
-    });
-
-    playButton.on('pointerover', () => playButton.setScale(0.3));
-    playButton.on('pointerout', () => playButton.setScale(0.25));
-    playButton.on('pointerdown', () => {
-        console.log('Iniciar jogo');
-        // this.scene.start('GameScene');
-    });
-
-  // Botão Dicas
-let dicasTexto = null;
-let dicasVisivel = false;
-let dicasPainel = null;
-
-// Posição no canto inferior direito
-const buttonMargin = 20;
-const dicasButton = this.add.image(this.scale.width - buttonMargin, this.scale.height - buttonMargin, 'dicas_button')
-    .setOrigin(1, 1) // Alinha o canto inferior direito do botão com as coordenadas
-    .setInteractive()
-    .setScale(0.1); // Escala menor
-
-// Animações de hover
-dicasButton.on('pointerover', () => {
-    this.tweens.add({
-        targets: dicasButton,
-        scale: 0.12,
-        duration: 200,
-        ease: 'Power2'
-    });
-});
-
-dicasButton.on('pointerout', () => {
-    this.tweens.add({
-        targets: dicasButton,
-        scale: 0.1,
-        duration: 200,
-        ease: 'Power2'
-    });
-});
-
-// Ao clicar, exibe ou esconde o painel de dicas
-dicasButton.on('pointerdown', () => {
-    if (!dicasVisivel) {
-        dicasPainel = this.add.image(this.scale.width / 2, this.scale.height / 2, 'painel_dicas')
-            .setOrigin(0.5)
-            .setScale(0.5)
-            .setDepth(10);
-        dicasVisivel = true;
-    } else {
-        dicasPainel.destroy();
-        dicasVisivel = false;
-    }
-});
-
-        // Fecha ao clicar em qualquer parte da tela
-        this.input.once('pointerdown', () => {
-            dicasPainel.destroy();
-            dicasVisivel = false;
-        });
+    // Fundo de fundo
+    if (!transitionDone) {
+        ctx.drawImage(assets.background, 0, 0, width, height);
     }
 
-
-// Evento global para esconder o texto se clicar fora do botão
-this.input.on('pointerdown', (pointer, currentlyOver) => {
-    const clicouForaDoBotao = !currentlyOver.includes(dicasButton);
-
-    if (clicouForaDoBotao && dicasVisivel) {
-        dicasTexto.destroy();
-        dicasTexto = null;
-        dicasVisivel = false;
+    // Botão Play animado
+    if (!transitionDone) {
+        playButtonArea = drawButton(assets.play_button, width / 2, height * 0.85, playScale);
+        playScale += scaleDirection * 0.002;
+        if (playScale > 0.45 || playScale < 0.4) {
+            scaleDirection *= -1;
+        }
     }
-});
 
+    // Hover botão Dicas
+    const hoverArea = {
+        x: width - 60 - (assets.dicas_button.width * dicasScale) / 2,
+        y: height - 60 - (assets.dicas_button.height * dicasScale) / 2,
+        width: assets.dicas_button.width * dicasScale,
+        height: assets.dicas_button.height * dicasScale
+    };
+
+    const hoveringDicas = isInside(mouseX, mouseY, hoverArea);
+    dicasScale += (hoveringDicas ? 1 : -1) * transitionSpeed;
+    dicasScale = Math.max(baseScale, Math.min(hoverScale, dicasScale));
+
+    dicasButtonArea = drawButton(assets.dicas_button, width - 60, height - 60, dicasScale);
+
+    // Painel Dicas
+    if (dicasVisivel) {
+        const scale = 0.5;
+        const img = assets.painel_dicas;
+        const imgWidth = img.width * scale;
+        const imgHeight = img.height * scale;
+        ctx.drawImage(
+            img,
+            width / 2 - imgWidth / 2,
+            height / 2 - imgHeight / 2,
+            imgWidth,
+            imgHeight
+        );
+    }
+
+    // Primeira transição: Fade-in da imagem Hagnar
+    if (isTransitioning) {
+        transitionAlpha += 0.02;
+        if (transitionAlpha >= 1) {
+            transitionAlpha = 1;
+            isTransitioning = false;
+            transitionDone = true;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = transitionAlpha;
+        ctx.drawImage(assets.intro_transition, 0, 0, width, height);
+        ctx.restore();
+    }
+
+    // Mostra imagem do Hagnar
+    if (transitionDone && !mostrarMensagem && !fadeOutHagnar) {
+        ctx.drawImage(assets.intro_transition, 0, 0, width, height);
+
+        tempoMensagem += 1 / 60;
+        if (tempoMensagem >= 5) {
+            fadeOutHagnar = true;
+        }
+    }
+
+    // Fade-out da imagem do Hagnar
+    if (fadeOutHagnar && !mostrarMensagem) {
+        fadeOutAlpha -= 0.02;
+        if (fadeOutAlpha <= 0) {
+            fadeOutAlpha = 0;
+            fadeOutHagnar = false;
+            mostrarMensagem = true;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = fadeOutAlpha;
+        ctx.drawImage(assets.intro_transition, 0, 0, width, height);
+        ctx.restore();
+    }
+
+    // Tela preta com frase
+    if (mostrarMensagem) {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.font = '24px "Press Start 2P", monospace';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textAlign = 'center';
+        ctx.fillText("Iniciando a primeira fase !", width / 2, height / 2);
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+window.addEventListener('resize', () => {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+});
