@@ -21,6 +21,7 @@ html, body {
 
 canvas {
   display: block;
-  width: 100vw;
-  height: 100vh;
+  image-rendering: pixelated; /* evita borrões em pixel art */
+  width: 100%;
+  height: 100%;
 }

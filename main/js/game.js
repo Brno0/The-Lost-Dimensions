@@ -1,5 +1,5 @@
- canvas = document.getElementById("gameCanvas");
- ctx = canvas.getContext("2d");
+const canvas = document.getElementById("gameCanvas"); 
+const ctx = canvas.getContext("2d");
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -8,149 +8,170 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-
- canvas = document.getElementById("gameCanvas");
- ctx = canvas.getContext("2d");
+// Fundo
 const bgImg = new Image();
-bgImg.src = "assets/background.png"; // ajuste o nome se necessário
+bgImg.src = "assets/background.png";
 
-
+// Teclado
 const keys = {};
 document.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
 document.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
 
-// CONFIGURAÇÃO DO PLAYER
+// PLAYER
 const player = {
   x: 100,
   y: 100,
-  width: 128,
-  height: 128,
   frame: 0,
   frameDelay: 8,
   frameCounter: 0,
   speed: 3.5,
-  direction: "right",
-  state: "idle", // idle, run, attack1, attack3
-  image: null,
-  animations: {}
+  direction: "down",
+  state: "idle_down",
+  animations: {},
+  width: 64,
+  height: 64,
+  scale: 1.8 // <--- Aumenta 1.5x (ajuste como preferir)
 };
 
-// CARREGA UMA SPRITESHEET
+
+// Contador de sprites carregadas
+let loadedCount = 0;
+const directions = ["down", "left", "right", "up"];
+const totalToLoad = directions.length * 4; // idle, run, attack1, attack2
+
 function loadSprite(name, path, frameCount) {
   const img = new Image();
   img.src = path;
-  player.animations[name] = {
-    image: img,
-    frameCount: frameCount
+  img.onload = () => {
+    player.animations[name] = {
+      image: img,
+      frameCount: frameCount,
+      frameWidth: img.width / frameCount,
+      frameHeight: img.height
+    };
+    loadedCount++;
+    if (loadedCount === totalToLoad) {
+      gameLoop(); // Inicia o jogo quando todas as animações estiverem carregadas
+    }
   };
 }
 
-// CARREGA TODAS AS ANIMAÇÕES
-loadSprite("idle", "assets/player/idle.png", 6);
-loadSprite("run", "assets/player/Run.png", 8);
-loadSprite("attack1", "assets/player/Attack_1.png", 4);
-loadSprite("attack3", "assets/player/Attack_3.png", 4);
+// Carregar animações
+directions.forEach(dir => {
+  loadSprite(`idle_${dir}`, `assets/player/idle_${dir}.png`, 8);
+  loadSprite(`run_${dir}`, `assets/player/run_${dir}.png`, 8);
+ loadSprite(`attack1_${dir}`, `assets/player/attack1_${dir}.png`, 8);
+loadSprite(`attack2_${dir}`, `assets/player/attack2_${dir}.png`, 8);
 
+});
+
+// Fundo
 function drawBackground() {
   if (bgImg.complete) {
     ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
   }
 }
 
-
-// DESENHA O PLAYER COM BASE NA ANIMAÇÃO ATUAL
+// Player
 function drawPlayer() {
   const anim = player.animations[player.state];
-  const frameWidth = player.width;
+  if (!anim || !anim.image.complete) return;
 
-  if (!anim.image.complete) return;
+  const frameW = anim.frameWidth;
+  const frameH = anim.frameHeight;
+  const sx = player.frame * frameW;
 
-  ctx.save();
+  const scaledW = frameW * player.scale;
+  const scaledH = frameH * player.scale;
 
-  if (player.direction === "left") {
-    ctx.translate(player.x + frameWidth, player.y);
-    ctx.scale(-1, 1);
-    ctx.drawImage(
-      anim.image,
-      player.frame * frameWidth, 0,
-      frameWidth, player.height,
-      0, 0,
-      frameWidth, player.height
-    );
-  } else {
-    ctx.drawImage(
-      anim.image,
-      player.frame * frameWidth, 0,
-      frameWidth, player.height,
-      player.x, player.y,
-      frameWidth, player.height
-    );
+  ctx.drawImage(
+    anim.image,
+    sx, 0,
+    frameW, frameH,
+    player.x, player.y,
+    scaledW, scaledH
+  );
+}
+
+
+// Atualiza lógica do jogador
+function changeState(newState) {
+  if (newState !== player.state) {
+    player.state = newState;
+    player.frame = 0;
+    player.frameCounter = 0;
+
+    const anim = player.animations[player.state];
+    if (anim) {
+      player.width = anim.frameWidth;
+      player.height = anim.frameHeight;
+    }
   }
-
-  ctx.restore();
 }
 
 function updatePlayer() {
   let dx = 0, dy = 0;
 
-  if (keys["w"]) dy -= 1;
-  if (keys["s"]) dy += 1;
-  if (keys["a"]) { dx -= 1; player.direction = "left"; }
-  if (keys["d"]) { dx += 1; player.direction = "right"; }
-
-  const moving = dx !== 0 || dy !== 0;
-
-  if (moving) {
-    // Normaliza para manter velocidade constante na diagonal
-    const length = Math.sqrt(dx * dx + dy * dy);
-    dx = dx / length;
-    dy = dy / length;
-
-    player.x += dx * player.speed;
-    player.y += dy * player.speed;
+  if (keys["w"]) {
+    dy = -1;
+    player.direction = "up";
+  } else if (keys["s"]) {
+    dy = 1;
+    player.direction = "down";
+  }
+  if (keys["a"]) {
+    dx = -1;
+    player.direction = "left";
+  } else if (keys["d"]) {
+    dx = 1;
+    player.direction = "right";
   }
 
-  // Ataques têm prioridade
-  if (keys["j"]) {
-    player.state = "attack1";
-  } else if (keys["k"]) {
-    player.state = "attack3";
-  } else if (moving) {
-    player.state = "run";
+  const isMoving = dx !== 0 || dy !== 0;
+  const currentAnim = player.animations[player.state];
+
+  // Travar entrada de novo ataque enquanto animação anterior não termina
+  if (player.state.startsWith("attack")) {
+    if (player.frame >= currentAnim?.frameCount - 1) {
+      changeState("idle_" + player.direction);
+    }
   } else {
-    player.state = "idle";
+    // Se ataque foi iniciado
+    if (keys["j"]) {
+      changeState("attack1_" + player.direction);
+    } else if (keys["k"]) {
+      changeState("attack2_" + player.direction);
+    } else if (isMoving) {
+      player.x += dx * player.speed;
+      player.y += dy * player.speed;
+      changeState("run_" + player.direction);
+    } else {
+      changeState("idle_" + player.direction);
+    }
   }
 
-  // Atualiza animação
+  const anim = player.animations[player.state];
+  if (!anim) return;
+
   player.frameCounter++;
   if (player.frameCounter >= player.frameDelay) {
     player.frameCounter = 0;
     player.frame++;
-    const anim = player.animations[player.state];
+
     if (player.frame >= anim.frameCount) {
       player.frame = 0;
-      if (player.state.startsWith("attack")) {
-        player.state = "idle";
-      }
     }
   }
 }
 
 
-// LIMPA TELA
-function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
 
-// LOOP PRINCIPAL
+
+// Loop principal
 function gameLoop() {
-  drawBackground();     // desenha o fundo
-  updatePlayer();       // atualiza lógica do jogador
-  drawPlayer();         // desenha o jogador por cima
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBackground();
+  updatePlayer();
+  drawPlayer();
   requestAnimationFrame(gameLoop);
 }
-  
-// Espera as imagens carregarem antes de iniciar
-window.onload = () => {
-  gameLoop();
-};
