@@ -29,8 +29,10 @@ const player = {
   state: "idle_down",
   animations: {},
   width: 64,
-  height: 64,
-  scale: 1.9 
+  height: 64, 
+  scale: 1.9,
+  shadowOffsetY: 0.88, // valor padrão para posição da sombra nos pés
+
 };
 
 
@@ -72,8 +74,10 @@ function drawBackground() {
   }
 }
 
+
 // Player
 function drawPlayer() {
+  
   const anim = player.animations[player.state];
   if (!anim || !anim.image.complete) return;
 
@@ -93,6 +97,38 @@ function drawPlayer() {
   );
 }
 
+//Sombra do Player
+function drawShadow() {
+  const anim = player.animations[player.state];
+  if (!anim) return;
+
+  const scale = player.scale;
+  const frameW = anim.frameWidth;
+  const frameH = anim.frameHeight;
+
+  const shadowWidth = frameW * scale * 0.25;
+  const shadowHeight = frameH * scale * 0.12;
+
+  const shadowX = player.x + (frameW * scale - shadowWidth) / 2;
+  const shadowY = player.y + frameH * scale * player.shadowOffsetY;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+  ctx.beginPath();
+  ctx.ellipse(
+    shadowX + shadowWidth / 2,
+    shadowY + shadowHeight / 2,
+    shadowWidth / 2,
+    shadowHeight / 2,
+    0,
+    0,
+    Math.PI * 2
+  );
+  ctx.fill();
+  ctx.restore();
+}
+
+
 
 // Atualiza lógica do jogador
 function changeState(newState) {
@@ -107,6 +143,17 @@ function changeState(newState) {
       player.height = anim.frameHeight;
     }
   }
+  // Ajusta a sombra de acordo com a animação
+if (newState.startsWith("idle")) {
+  player.shadowOffsetY = 0.65;
+} else if (newState.startsWith("run")) {
+  player.shadowOffsetY = 0.65;
+} else if (newState.startsWith("attack")) {
+  player.shadowOffsetY = 0.65;
+} else {
+  player.shadowOffsetY = 0.65;
+}
+
 }
 
 function updatePlayer() {
@@ -172,6 +219,7 @@ function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
   updatePlayer();
+  drawShadow();  // <-- desenha a sombra antes do jogador
   drawPlayer();
   requestAnimationFrame(gameLoop);
 }
