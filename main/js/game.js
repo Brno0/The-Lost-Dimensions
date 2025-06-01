@@ -71,6 +71,13 @@ function isColliding(a, b) {
   );
 }
 
+function isCircleColliding(a, b, radius) {
+  const dx = (a.x + a.width / 2) - (b.x + b.width / 2);
+  const dy = (a.y + a.height / 2) - (b.y + b.height / 2);
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  return distance < radius;
+}
+
 
 //Sombra portal
 function drawPortalShadow() {
@@ -297,6 +304,17 @@ const bosses = [
     dead: false
   }
 ];
+const specialStone = {
+  x: 0,
+  y: 0,
+  width: 32,
+  height: 32,
+  collected: false,
+  visible: false,
+  image: new Image(),
+};
+specialStone.image.src = "assets/gelo.png";
+
 
 if (player.state.startsWith("attack") && isColliding(player, boss)) {
   boss.currentHealth -= 0.5; // dano leve por ataque
@@ -327,6 +345,50 @@ function gameLoop() {
  
 drawBackground(); // primeiro desenha o fundo
 
+if (specialStone.visible && !specialStone.collected) {
+  ctx.drawImage(
+    specialStone.image,
+    specialStone.x,
+    specialStone.y,
+    specialStone.width,
+    specialStone.height
+  );
+}
+
+  // Verificar se o player está próximo da pedra para coletar
+  const playerCenterX = player.x + (player.width * player.scale) / 2;
+  const playerCenterY = player.y + (player.height * player.scale) / 2;
+  const stoneCenterX = specialStone.x + specialStone.width / 2;
+  const stoneCenterY = specialStone.y + specialStone.height / 2;
+  
+  const distanceToStone = Math.sqrt(
+    (playerCenterX - stoneCenterX) ** 2 + (playerCenterY - stoneCenterY) ** 2
+  );
+
+if (
+  specialStone.visible &&
+  !specialStone.collected &&
+  distanceToStone < 80
+) {
+  // Exibe o texto de interação
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(
+    "Pressione 'E' para coletar",
+    specialStone.x + specialStone.width / 2,
+    specialStone.y - 10
+  );
+
+  // Coletar ao pressionar 'E'
+  if (keys["e"]) {
+    specialStone.collected = true;
+    specialStone.visible = false;
+    console.log("Pedra coletada!");
+    // Aqui você pode adicionar algum efeito, som ou alteração no jogo
+  }
+}
+
 // Depois, desenha tudo o que vai por cima do fundo
 drawHealthBar(20, canvas.height - 30, 200, 20, 100, player.currentHealth, "green");
 drawHealthBar(canvas.width / 2 - 150, 20, 300, 20, boss.maxHealth, boss.currentHealth, "red");
@@ -336,11 +398,11 @@ if (boss.dead) {
   ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
 }
 
-
   //Verificar colisão do portal
  if (isColliding(player, portal)) {
   // Vai para a próxima fase
   currentBackground = (currentBackground + 1) % backgrounds.length;
+
 
   // Atualiza posição do portal com base na nova fase
   const config = portalConfigs[currentBackground] || portalConfigs[0];
@@ -408,10 +470,16 @@ function updateBoss() {
 }
 
 }
-if (boss.currentHealth <= 0) {
+if (boss.currentHealth <= 0 && !boss.dead) {
   boss.currentHealth = 0;
   boss.isActive = false;
   boss.dead = true;
+
+  // Faz a pedra aparecer na posição do boss
+  specialStone.x = boss.x + boss.width / 2 - specialStone.width / 2;
+  specialStone.y = boss.y + boss.height / 2 - specialStone.height / 2;
+  specialStone.visible = true;
+  specialStone.collected = false;
 }
 
 
