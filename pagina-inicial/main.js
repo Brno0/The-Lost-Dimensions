@@ -6,7 +6,7 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-// Assets
+// CARREGAMENTO DOS ASSETS
 const assets = {
     background: new Image(),
     play_button: new Image(),
@@ -24,7 +24,7 @@ assets.intro_transition.src = 'assets/começandoHagnar.png';
 let assetsLoaded = 0;
 const totalAssets = Object.keys(assets).length;
 
-// Estados
+// VARIÁVEIS DE ESTADO
 let dicasVisivel = false;
 let playButtonArea = null;
 let dicasButtonArea = null;
@@ -54,7 +54,7 @@ let fadeOutAlpha = 1;
 let redirecionou = false;
 const WAIT_BEFORE_REDIRECT = 2;
 
-// Preload
+// PRÉ-CARREGAMENTO DOS ASSETS
 Object.values(assets).forEach((img) => {
     img.onload = () => {
         assetsLoaded++;
@@ -64,7 +64,7 @@ Object.values(assets).forEach((img) => {
     };
 });
 
-// Eventos
+// EVENTOS DE MOUSE
 canvas.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
@@ -85,12 +85,14 @@ canvas.addEventListener('click', (e) => {
     }
 });
 
+// FUNÇÃO DE DETECÇÃO DE CLIQUE EM ÁREA
 function isInside(x, y, area) {
     return area &&
         x >= area.x && x <= area.x + area.width &&
         y >= area.y && y <= area.y + area.height;
 }
 
+// FUNÇÃO DE DESENHAR BOTÕES
 function drawButton(img, centerX, centerY, scale) {
     const width = img.width * scale;
     const height = img.height * scale;
@@ -102,6 +104,7 @@ function drawButton(img, centerX, centerY, scale) {
     return { x, y, width, height };
 }
 
+// LOOP PRINCIPAL DE RENDERIZAÇÃO
 function gameLoop() {
     ctx.clearRect(0, 0, width, height);
 
@@ -201,7 +204,6 @@ function gameLoop() {
         tempoMensagem += 1 / 60;
         if (tempoMensagem >= WAIT_BEFORE_REDIRECT && !redirecionou) {
             redirecionou = true;
-            // Redireciona para o jogo em “../main/index.html”
             window.location.href = '../main/index.html';
         }
     }
@@ -209,6 +211,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
+// AJUSTE DE TAMANHO DA TELA
 window.addEventListener('resize', () => {
     width = window.innerWidth;
     height = window.innerHeight;

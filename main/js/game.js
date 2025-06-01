@@ -1,3 +1,4 @@
+//CONFIGURAÇÃO DO CANVAS
 const canvas = document.getElementById("gameCanvas"); 
 const ctx = canvas.getContext("2d");
 
@@ -8,40 +9,40 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-// Fundo
+// FUNDO DO JOGO
 const backgrounds = [
-  { image: new Image(), src: "assets/background.png" },       // fase 1
+  { image: new Image(), src: "assets/background.png" },  // fase 1
   { image: new Image(), src: "assets/background2.png" }  // fase 2
 ];
 let currentBackground = 0;
 backgrounds.forEach(bg => bg.image.src = bg.src);
 
-// Teclado
+// CONTROLE DO TECLADO
 const keys = {};
 document.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
 document.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
 
-// PLAYER
+// PERSONAGEM (HAGNAR)
 const player = {
   x: 100,
   y: 100,
   frame: 0,
   frameDelay: 4,
   frameCounter: 0,
-  speed: 2.8,
+  speed: 2.8,          // velocidade Hagnar
   direction: "down",
   state: "idle_down",
   animations: {},
   width: 64,
-  height: 64, 
-  scale: 2.0,
+  height: 64,          
+  scale: 2.0,          // tamanho Hagnar 
   shadowOffsetY: 0.88, // valor padrão para posição da sombra nos pés
-
 };
+
+// PORTAL ENTRE FASES
 const portalConfigs = [
-  { x: canvas.width - 120, y: 70 },                              // Fase 1
-  { x: canvas.width / 2 - 64, y: canvas.height - 140 },         // Fase 2 (meio inferior)
-  // Adicione mais posições aqui para fases futuras
+  { x: canvas.width - 120, y: 70 },                             // Fase 1
+  { x: canvas.width / 2 - 64, y: canvas.height - 140 },         // Fase 2
 ];
 
 const portal = {
@@ -55,7 +56,7 @@ portal.image.src = "assets/portal.png";
 
 portal.image.src = "assets/portal.png";
 
-
+// DETECÇÃO DE COLISÃO PORTAL
 function isColliding(a, b) {
   const buffer = 40; // reduz o tamanho efetivo da colisão
   return (
@@ -65,6 +66,7 @@ function isColliding(a, b) {
     a.y + a.height > b.y + buffer
   );
 }
+
 //Sombra portal
 function drawPortalShadow() {
   const shadowWidth = portal.width * 0.8;
@@ -89,10 +91,7 @@ function drawPortalShadow() {
   ctx.restore();
 }
 
-
-
-
-// Contador de sprites carregadas
+// CARREGAMENTO DE ANIMAÇÕES
 let loadedCount = 0;
 const directions = ["down", "left", "right", "up"];
 const totalToLoad = directions.length * 4; // idle, run, attack1, attack2
@@ -116,13 +115,13 @@ function loadSprite(name, path, frameCount) {
 
 // Carregar animações
 directions.forEach(dir => {
-  loadSprite(`idle_${dir}`, `assets/player/idle_${dir}.png`, 8);
-  loadSprite(`run_${dir}`, `assets/player/run_${dir}.png`, 8);
- loadSprite(`attack1_${dir}`, `assets/player/attack1_${dir}.png`, 8);
+loadSprite(`idle_${dir}`, `assets/player/idle_${dir}.png`, 8);
+loadSprite(`run_${dir}`, `assets/player/run_${dir}.png`, 8);
+loadSprite(`attack1_${dir}`, `assets/player/attack1_${dir}.png`, 8);
 loadSprite(`attack2_${dir}`, `assets/player/attack2_${dir}.png`, 8);
-
 });
 
+// DESENHO NA TELA
 // Fundo
 function drawBackground() {
   const bg = backgrounds[currentBackground].image;
@@ -130,8 +129,6 @@ function drawBackground() {
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
   }
 }
-
-
 
 // Player
 function drawPlayer() {
@@ -185,8 +182,6 @@ function drawShadow() {
   ctx.fill();
   ctx.restore();
 }
-
-
 
 // Atualiza lógica do jogador
 function changeState(newState) {
@@ -269,10 +264,7 @@ function updatePlayer() {
   }
 }
 
-
-
-
-// Loop principal
+// LOOP DO JOGO
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
@@ -293,7 +285,6 @@ ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
   player.x = 50;
   player.y = 50;
 }
-
 
   updatePlayer();
   drawShadow();  

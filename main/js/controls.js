@@ -1,3 +1,4 @@
+// OBJETO DE CONTROLE DAS TECLAS
 const keys = {
     a: { pressed: false },
     d: { pressed: false },
@@ -7,6 +8,7 @@ const keys = {
     k: { pressed: false }
 }
 
+// EVENTO DE TECLA PRESSIONADA
 window.addEventListener("keydown", (e) => {
     let key = e.key
     switch (key) {
@@ -27,7 +29,6 @@ window.addEventListener("keydown", (e) => {
         case "w":
             keys.w.pressed = true
             break
-
         case "j":
         case "k":
             keys.j.pressed = true
@@ -35,6 +36,7 @@ window.addEventListener("keydown", (e) => {
     }
 })
 
+// EVENTO DE TECLA SOLTA
 window.addEventListener("keyup", (e) => {
     let key = e.key
     switch (key) {
@@ -61,8 +63,10 @@ window.addEventListener("keyup", (e) => {
     }
 })
 
+// FUNÇÃO PARA LIDAR COM MOVIMENTO
 function handleControls() {
     movement()
+    // FUNÇÃO INTERNA DE MOVIMENTO
     function movement() {
         player.velocity.x = 0
 
