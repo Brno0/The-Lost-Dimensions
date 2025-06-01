@@ -61,14 +61,16 @@ portal.image.src = "assets/portal.png";
 
 // DETECÇÃO DE COLISÃO PORTAL
 function isColliding(a, b) {
-  const buffer = 40; // reduz o tamanho efetivo da colisão
+  const bufferX = 20;
+  const bufferY = 30;
   return (
-    a.x < b.x + b.width - buffer &&
-    a.x + a.width > b.x + buffer &&
-    a.y < b.y + b.height - buffer &&
-    a.y + a.height > b.y + buffer
+    a.x < b.x + b.width - bufferX &&
+    a.x + a.width > b.x + bufferX &&
+    a.y < b.y + b.height - bufferY &&
+    a.y + a.height > b.y + bufferY
   );
 }
+
 
 //Sombra portal
 function drawPortalShadow() {
@@ -269,17 +271,32 @@ function updatePlayer() {
 
 // LOOP DO JOGO
 
-const boss = {
-  x: canvas.width - 200,
-  y: canvas.height / 2,
-  width: 100,
-  height: 100,
-  color: "darkred",
-  speed: 1.2,
-  maxHealth: 100,
-  currentHealth: 100,
-  isActive: false, // só ativa quando player se aproxima
-};
+const bosses = [
+  {
+    x: canvas.width - 240,
+    y: 450 - 100 / 2,
+    width: 60,
+    height: 120,
+    color: "darkred",
+    speed: 1.2,
+    maxHealth: 100,
+    currentHealth: 100,
+    isActive: false,
+    dead: false
+  },
+  {
+   x: 1300- 100 / 2,  // centralizado na plataforma da Fase 1
+    y: 45 - 100 / 2,
+    width: 80,
+    height: 140,
+    color: "darkblue", // cor diferente pro boss da fase 2
+    speed: 1.6,
+    maxHealth: 150,
+    currentHealth: 150,
+    isActive: false,
+    dead: false
+  }
+];
 
 if (player.state.startsWith("attack") && isColliding(player, boss)) {
   boss.currentHealth -= 0.5; // dano leve por ataque
@@ -304,14 +321,21 @@ function drawHealthBar(x, y, width, height, max, current, color) {
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Atualiza o boss da fase atual
+  let boss = bosses[currentBackground];  // ⬅️ AQUI
+
+ 
 drawBackground(); // primeiro desenha o fundo
 
 // Depois, desenha tudo o que vai por cima do fundo
 drawHealthBar(20, canvas.height - 30, 200, 20, 100, player.currentHealth, "green");
 drawHealthBar(canvas.width / 2 - 150, 20, 300, 20, boss.maxHealth, boss.currentHealth, "red");
 
-drawPortalShadow();
-ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
+if (boss.dead) {
+  drawPortalShadow();
+  ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
+}
+
 
   //Verificar colisão do portal
  if (isColliding(player, portal)) {
@@ -326,6 +350,8 @@ ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
   // Posiciona o jogador
   player.x = 50;
   player.y = 50;
+  player.currentHealth = 100; // Regenera a vida
+
 }
 
 updateBoss();
@@ -377,9 +403,10 @@ function updateBoss() {
   }
 
   // Causa dano ao player em colisão
-  if (isColliding(player, boss)) {
-    player.currentHealth -= 0.2; // dano contínuo leve
-  }
+ if (!boss.dead && isColliding(player, boss)) {
+  player.currentHealth -= 0.2;
+}
+
 }
 if (boss.currentHealth <= 0) {
   boss.currentHealth = 0;
