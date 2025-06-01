@@ -337,6 +337,7 @@ function drawHealthBar(x, y, width, height, max, current, color) {
 
 // Loop principal
 function gameLoop() {
+  updatePlayerPosition()
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Atualiza o boss da fase atual
@@ -487,4 +488,22 @@ if (boss.currentHealth <= 0 && !boss.dead) {
   requestAnimationFrame(gameLoop);
 
   
+}
+
+
+function updatePlayerPosition() {
+  if (!player.width || !player.height) return; // impede erros antes da animação carregar
+
+  if (keys["arrowup"] || keys["w"]) player.y -= player.speed;
+  if (keys["arrowdown"] || keys["s"]) player.y += player.speed;
+  if (keys["arrowleft"] || keys["a"]) player.x -= player.speed;
+  if (keys["arrowright"] || keys["d"]) player.x += player.speed;
+
+const centerOffsetX = (player.width * player.scale) / 2;
+const centerOffsetY = (player.height * player.scale) / 2;
+
+player.x = Math.max(0 - centerOffsetX, Math.min(canvas.width - centerOffsetX, player.x));
+player.y = Math.max(0 - centerOffsetY, Math.min(canvas.height - centerOffsetY, player.y));
+
+
 }
