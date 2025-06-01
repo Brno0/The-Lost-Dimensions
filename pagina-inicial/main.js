@@ -171,7 +171,7 @@ function gameLoop() {
         ctx.drawImage(assets.intro_transition, 0, 0, width, height);
 
         tempoMensagem += 1 / 60;
-        if (tempoMensagem >= 5) {
+        if (tempoMensagem >= 3) {
             fadeOutHagnar = true;
         }
     }

@@ -37,6 +37,9 @@ const player = {
   height: 64,          
   scale: 2.0,          // tamanho Hagnar 
   shadowOffsetY: 0.88, // valor padrão para posição da sombra nos pés
+  currentHealth: 100,
+
+
 };
 
 // PORTAL ENTRE FASES
@@ -265,10 +268,49 @@ function updatePlayer() {
 }
 
 // LOOP DO JOGO
+
+const boss = {
+  x: canvas.width - 200,
+  y: canvas.height / 2,
+  width: 100,
+  height: 100,
+  color: "darkred",
+  speed: 1.2,
+  maxHealth: 100,
+  currentHealth: 100,
+  isActive: false, // só ativa quando player se aproxima
+};
+
+if (player.state.startsWith("attack") && isColliding(player, boss)) {
+  boss.currentHealth -= 0.5; // dano leve por ataque
+  if (boss.currentHealth < 0) boss.currentHealth = 0;
+}
+
+function drawHealthBar(x, y, width, height, max, current, color) {
+  ctx.fillStyle = "gray"; // fundo da barra
+  ctx.fillRect(x, y, width, height);
+
+  const ratio = Math.max(current / max, 0);
+  ctx.fillStyle = color; // barra de vida
+  ctx.fillRect(x, y, width * ratio, height);
+
+  ctx.strokeStyle = "black";
+  ctx.strokeRect(x, y, width, height); // borda
+}
+
+
+
+// Loop principal
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBackground();
-drawPortalShadow();  // ⬅️ sombra antes do portal
+
+drawBackground(); // primeiro desenha o fundo
+
+// Depois, desenha tudo o que vai por cima do fundo
+drawHealthBar(20, canvas.height - 30, 200, 20, 100, player.currentHealth, "green");
+drawHealthBar(canvas.width / 2 - 150, 20, 300, 20, boss.maxHealth, boss.currentHealth, "red");
+
+drawPortalShadow();
 ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
 
   //Verificar colisão do portal
@@ -286,9 +328,68 @@ ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
   player.y = 50;
 }
 
+updateBoss();
+if (!boss.dead) {
+  ctx.fillStyle = boss.color;
+  ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+}
+
+
   updatePlayer();
+
+// ⬇️ Verifica dano causado pelo player no boss durante o ataque
+if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead) {
+  boss.currentHealth -= 0.5;
+  if (boss.currentHealth < 0) boss.currentHealth = 0;
+}
+
+  if (player.currentHealth <= 0) {
+  player.currentHealth = 0;
+  player.speed = 0;
+  ctx.fillStyle = "black";
+  ctx.font = "40px Arial";
+  ctx.fillText("Você morreu!", canvas.width / 2 - 100, canvas.height / 2);
+  return; // Para interromper o jogo
+}
+
+
   drawShadow();  
   drawPlayer();
 
+  function distance(a, b) {
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function updateBoss() {
+  const dist = distance(player, boss);
+  boss.isActive = dist < 400; // range para perseguição do boss
+
+  if (boss.isActive && boss.currentHealth > 0) {
+    const dx = player.x - boss.x;
+    const dy = player.y - boss.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    if (len > 0) {
+      boss.x += (dx / len) * boss.speed;
+      boss.y += (dy / len) * boss.speed;
+    }
+  }
+
+  // Causa dano ao player em colisão
+  if (isColliding(player, boss)) {
+    player.currentHealth -= 0.2; // dano contínuo leve
+  }
+}
+if (boss.currentHealth <= 0) {
+  boss.currentHealth = 0;
+  boss.isActive = false;
+  boss.dead = true;
+}
+
+
+
   requestAnimationFrame(gameLoop);
+
+  
 }
