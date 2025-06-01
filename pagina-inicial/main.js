@@ -12,19 +12,26 @@ const assets = {
     play_button: new Image(),
     dicas_button: new Image(),
     painel_dicas: new Image(),
-    intro_transition: new Image() // Hagnar
+    historia: [
+        new Image(), // pag1
+        new Image(), // pag2
+        new Image(), // pag3
+        new Image()  // pag4
+    ]
 };
 
 assets.background.src = 'assets/intro.png';
-assets.play_button.src = 'assets/button_play.png';
+assets.play_button.src = 'assets/button_play.PNG';
 assets.dicas_button.src = 'assets/buttonDicas.png';
-assets.painel_dicas.src = 'assets/dicasThelost.png';
-assets.intro_transition.src = 'assets/começandoHagnar.png';
+assets.painel_dicas.src = 'assets/dicasThelost.PNG';
+assets.historia[0].src = 'paginasHistoria/pag1.png';
+assets.historia[1].src = 'paginasHistoria/pag2.png';
+assets.historia[2].src = 'paginasHistoria/pag3.png';
+assets.historia[3].src = 'paginasHistoria/pag4.png';
 
 let assetsLoaded = 0;
-const totalAssets = Object.keys(assets).length;
+const totalAssets = 4 + assets.historia.length;
 
-// VARIÁVEIS DE ESTADO
 let dicasVisivel = false;
 let playButtonArea = null;
 let dicasButtonArea = null;
@@ -37,25 +44,14 @@ const baseScale = 0.1;
 const hoverScale = 0.12;
 const transitionSpeed = 0.01;
 
-let isTransitioning = false;
-let transitionAlpha = 0;
-let transitionDone = false;
+let iniciarHistoria = false;
+let historiaIndex = 0;
+let historiaTempo = 0;
+const TEMPO_POR_TELA = 15;
 
-// Mensagem pós-transição
-let mostrarMensagem = false;
-let tempoMensagem = 0;
-let mensagemMostrada = false;
-
-// Nova transição: fade-out da imagem do Hagnar
-let fadeOutHagnar = false;
-let fadeOutAlpha = 1;
-
-// Contagem para redirecionar ao jogo
 let redirecionou = false;
-const WAIT_BEFORE_REDIRECT = 2;
 
-// PRÉ-CARREGAMENTO DOS ASSETS
-Object.values(assets).forEach((img) => {
+[...Object.values(assets).filter(a => !Array.isArray(a)), ...assets.historia].forEach(img => {
     img.onload = () => {
         assetsLoaded++;
         if (assetsLoaded === totalAssets) {
@@ -64,7 +60,6 @@ Object.values(assets).forEach((img) => {
     };
 });
 
-// EVENTOS DE MOUSE
 canvas.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
@@ -74,144 +69,84 @@ canvas.addEventListener('click', (e) => {
     const x = e.clientX;
     const y = e.clientY;
 
-    if (isInside(x, y, playButtonArea) && !isTransitioning && !transitionDone) {
-        isTransitioning = true;
+    if (!iniciarHistoria && isInside(x, y, playButtonArea)) {
+        iniciarHistoria = true;
     }
 
-    if (isInside(x, y, dicasButtonArea)) {
+    if (!iniciarHistoria && isInside(x, y, dicasButtonArea)) {
         dicasVisivel = !dicasVisivel;
     } else if (dicasVisivel) {
         dicasVisivel = false;
     }
 });
 
-// FUNÇÃO DE DETECÇÃO DE CLIQUE EM ÁREA
 function isInside(x, y, area) {
     return area &&
         x >= area.x && x <= area.x + area.width &&
         y >= area.y && y <= area.y + area.height;
 }
 
-// FUNÇÃO DE DESENHAR BOTÕES
 function drawButton(img, centerX, centerY, scale) {
     const width = img.width * scale;
     const height = img.height * scale;
     const x = centerX - width / 2;
     const y = centerY - height / 2;
-
     ctx.drawImage(img, x, y, width, height);
-
     return { x, y, width, height };
 }
 
-// LOOP PRINCIPAL DE RENDERIZAÇÃO
 function gameLoop() {
     ctx.clearRect(0, 0, width, height);
 
-    // Fundo de fundo
-    if (!transitionDone) {
+    if (!iniciarHistoria) {
         ctx.drawImage(assets.background, 0, 0, width, height);
-    }
-
-    // Botão Play animado
-    if (!transitionDone) {
         playButtonArea = drawButton(assets.play_button, width / 2, height * 0.85, playScale);
         playScale += scaleDirection * 0.002;
-        if (playScale > 0.45 || playScale < 0.4) {
-            scaleDirection *= -1;
+        if (playScale > 0.45 || playScale < 0.4) scaleDirection *= -1;
+
+        const hoverArea = {
+            x: width - 60 - (assets.dicas_button.width * dicasScale) / 2,
+            y: height - 60 - (assets.dicas_button.height * dicasScale) / 2,
+            width: assets.dicas_button.width * dicasScale,
+            height: assets.dicas_button.height * dicasScale
+        };
+
+        const hoveringDicas = isInside(mouseX, mouseY, hoverArea);
+        dicasScale += (hoveringDicas ? 1 : -1) * transitionSpeed;
+        dicasScale = Math.max(baseScale, Math.min(hoverScale, dicasScale));
+        dicasButtonArea = drawButton(assets.dicas_button, width - 60, height - 60, dicasScale);
+
+        if (dicasVisivel) {
+            const scale = 0.5;
+            const img = assets.painel_dicas;
+            ctx.drawImage(
+                img,
+                width / 2 - (img.width * scale) / 2,
+                height / 2 - (img.height * scale) / 2,
+                img.width * scale,
+                img.height * scale
+            );
         }
     }
 
-    // Hover botão Dicas
-    const hoverArea = {
-        x: width - 60 - (assets.dicas_button.width * dicasScale) / 2,
-        y: height - 60 - (assets.dicas_button.height * dicasScale) / 2,
-        width: assets.dicas_button.width * dicasScale,
-        height: assets.dicas_button.height * dicasScale
-    };
-
-    const hoveringDicas = isInside(mouseX, mouseY, hoverArea);
-    dicasScale += (hoveringDicas ? 1 : -1) * transitionSpeed;
-    dicasScale = Math.max(baseScale, Math.min(hoverScale, dicasScale));
-
-    dicasButtonArea = drawButton(assets.dicas_button, width - 60, height - 60, dicasScale);
-
-    // Painel Dicas
-    if (dicasVisivel) {
-        const scale = 0.5;
-        const img = assets.painel_dicas;
-        const imgWidth = img.width * scale;
-        const imgHeight = img.height * scale;
-        ctx.drawImage(
-            img,
-            width / 2 - imgWidth / 2,
-            height / 2 - imgHeight / 2,
-            imgWidth,
-            imgHeight
-        );
-    }
-
-    // Primeira transição: Fade-in da imagem Hagnar
-    if (isTransitioning) {
-        transitionAlpha += 0.02;
-        if (transitionAlpha >= 1) {
-            transitionAlpha = 1;
-            isTransitioning = false;
-            transitionDone = true;
-        }
-
-        ctx.save();
-        ctx.globalAlpha = transitionAlpha;
-        ctx.drawImage(assets.intro_transition, 0, 0, width, height);
-        ctx.restore();
-    }
-
-    // Mostra imagem do Hagnar
-    if (transitionDone && !mostrarMensagem && !fadeOutHagnar) {
-        ctx.drawImage(assets.intro_transition, 0, 0, width, height);
-
-        tempoMensagem += 1 / 60;
-        if (tempoMensagem >= 3) {
-            fadeOutHagnar = true;
+    if (iniciarHistoria && historiaIndex < assets.historia.length) {
+        const img = assets.historia[historiaIndex];
+        ctx.drawImage(img, 0, 0, width, height);
+        historiaTempo += 1 / 60;
+        if (historiaTempo >= TEMPO_POR_TELA) {
+            historiaIndex++;
+            historiaTempo = 0;
         }
     }
 
-    // Fade-out da imagem do Hagnar
-    if (fadeOutHagnar && !mostrarMensagem) {
-        fadeOutAlpha -= 0.02;
-        if (fadeOutAlpha <= 0) {
-            fadeOutAlpha = 0;
-            fadeOutHagnar = false;
-            mostrarMensagem = true;
-        }
-
-        ctx.save();
-        ctx.globalAlpha = fadeOutAlpha;
-        ctx.drawImage(assets.intro_transition, 0, 0, width, height);
-        ctx.restore();
-    }
-
-    // Tela preta com frase
-    if (mostrarMensagem) {
-        ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, width, height);
-
-        ctx.font = '24px "Press Start 2P", monospace';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.textAlign = 'center';
-        ctx.fillText("Iniciando a primeira fase !", width / 2, height / 2);
-    
-        tempoMensagem += 1 / 60;
-        if (tempoMensagem >= WAIT_BEFORE_REDIRECT && !redirecionou) {
-            redirecionou = true;
-            window.location.href = '../main/index.html';
-        }
+    if (iniciarHistoria && historiaIndex >= assets.historia.length && !redirecionou) {
+        redirecionou = true;
+        window.location.href = '../main/index.html';
     }
 
     requestAnimationFrame(gameLoop);
 }
 
-// AJUSTE DE TAMANHO DA TELA
 window.addEventListener('resize', () => {
     width = window.innerWidth;
     height = window.innerHeight;

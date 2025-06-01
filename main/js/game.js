@@ -343,7 +343,6 @@ function gameLoop() {
   // Atualiza o boss da fase atual
   let boss = bosses[currentBackground];  // ⬅️ AQUI
 
- 
 drawBackground(); // primeiro desenha o fundo
 
 if (specialStone.visible && !specialStone.collected) {
@@ -489,7 +488,6 @@ if (boss.currentHealth <= 0 && !boss.dead) {
 
   
 }
-
 
 function updatePlayerPosition() {
   if (!player.width || !player.height) return; // impede erros antes da animação carregar
