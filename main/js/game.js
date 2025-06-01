@@ -301,4 +301,3 @@ ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
 
   requestAnimationFrame(gameLoop);
 }
-
