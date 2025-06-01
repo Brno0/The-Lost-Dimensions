@@ -400,7 +400,7 @@ if (boss.dead) {
 }
 
   //Verificar colisão do portal
- if (isColliding(player, portal)) {
+  if (boss.dead && isColliding(player, portal)) {
   // Vai para a próxima fase
   currentBackground = (currentBackground + 1) % backgrounds.length;
 
