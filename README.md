@@ -7,7 +7,7 @@ Nesse trabalho iremos desenvolver um jogo funcional, contendo histótia, persona
 "The Lost Dimension" é um jogo de aventura e ação 2D onde o jogador assume o papel de Hagnar, um adolescente que é transportado para dentro de um videogame misterioso. Guiado por uma voz enigmática, Hagnar deve enfrentar guardiões colossais em diversas dimensões para coletar joias de poder elemental, desvendar segredos ancestrais e encontrar o caminho de volta para casa, apenas para descobrir um destino ainda maior.
 
 ## História
-Há muitos anos, o planeta Terra era unificado sob o comando de um ser que dominava os elementos primordiais: Fogo, Vento, Natureza, entre outros, mantendo o mundo em paz e harmonia. Com o tempo, as civilizações evoluíram e, sentindo-se autossuficientes, rebelaram-se contra seu mestre. Em uma batalha intensa, o dominador foi derrotado, e o mundo fragmentou-se em nações e governos separados, perdendo sua unidade e equilíbrio.
+Há muitos anos, o planeta Terra era unificado sob o comando de um ser que dominava os elementos primordiais: Fogo, Vento e Natureza, mantendo o mundo em paz e harmonia. Com o tempo, as civilizações evoluíram e, sentindo-se autossuficientes, rebelaram-se contra seu mestre. Em uma batalha intensa, o dominador foi derrotado, e o mundo fragmentou-se em nações e governos separados, perdendo sua unidade e equilíbrio.
 
 Contudo, a sabedoria do mestre dos elementos permitiu que sua essência se dividisse em pedras elementais, cada uma representando um domínio. Essas pedras foram ocultadas em uma dimensão secreta, protegida por poderosos guardiões e acessível apenas por um portal perdido. Reza a lenda que um "escolhido" surgiria para redescobrir esses poderes.
 
