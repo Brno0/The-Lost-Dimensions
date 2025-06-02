@@ -59,17 +59,43 @@ portal.image.src = "assets/portal.png";
 
 portal.image.src = "assets/portal.png";
 
+function getHitbox(entity) {
+  // Valores padrão
+  let x = entity.x;
+  let y = entity.y;
+  let width = entity.width || 0;
+  let height = entity.height || 0;
+  let scale = entity.scale || 1;
+
+  // Redimensiona com escala (se existir)
+  width *= scale;
+  height *= scale;
+
+  // Se for o player, ajustamos a hitbox manualmente
+  if (entity === player) {
+  const marginX = width * 0.58; // antes 0.2
+  const marginY = height * 0.32; // antes 0.1
+
+  x += marginX;
+  y += marginY;
+  width -= marginX * 2;
+  height -= marginY * 2;
+}
+
+  return { x, y, width, height };
+}
+
+
 // DETECÇÃO DE COLISÃO PORTAL
 function isColliding(a, b) {
-  const bufferX = 20;
-  const bufferY = 30;
   return (
-    a.x < b.x + b.width - bufferX &&
-    a.x + a.width > b.x + bufferX &&
-    a.y < b.y + b.height - bufferY &&
-    a.y + a.height > b.y + bufferY
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
   );
 }
+
 
 function isCircleColliding(a, b, radius) {
   const dx = (a.x + a.width / 2) - (b.x + b.width / 2);
@@ -280,29 +306,39 @@ function updatePlayer() {
 
 const bosses = [
   {
-    x: canvas.width - 240,
-    y: 450 - 100 / 2,
-    width: 60,
-    height: 120,
-    color: "darkred",
-    speed: 1.2,
-    maxHealth: 100,
-    currentHealth: 100,
-    isActive: false,
-    dead: false
-  },
+  x: canvas.width - 240,
+  y: 450 - 100 / 2,
+  width: 60,
+  height: 120,
+  color: "darkred",
+  speed: 1.2,
+  maxHealth: 200,
+  currentHealth: 200,
+  isActive: false,
+  dead: false,
+  attackCooldown: 1000,
+  lastAttackTime: 0,
+  isAttacking: false,
+  attackDuration: 400,
+},
+
   {
-   x: 1300- 100 / 2,  // centralizado na plataforma da Fase 1
-    y: 45 - 100 / 2,
-    width: 80,
-    height: 140,
-    color: "darkblue", // cor diferente pro boss da fase 2
-    speed: 1.6,
-    maxHealth: 150,
-    currentHealth: 150,
-    isActive: false,
-    dead: false
-  }
+  x: canvas.width - 240,
+  y: 450 - 100 / 2,
+  width: 60,
+  height: 120,
+  color: "darkred",
+  speed: 1.2,
+  maxHealth: 300,
+  currentHealth: 300,
+  isActive: false,
+  dead: false,
+  attackCooldown: 1000,
+  lastAttackTime: 0,
+  isAttacking: false,
+  attackDuration: 400,
+},
+
 ];
 const specialStone = {
   x: 0,
@@ -338,6 +374,7 @@ function drawHealthBar(x, y, width, height, max, current, color) {
 // Loop principal
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
 
   // Atualiza o boss da fase atual
   let boss = bosses[currentBackground];  // ⬅️ AQUI
@@ -418,12 +455,40 @@ if (boss.dead) {
 
 updateBoss();
 if (!boss.dead) {
-  ctx.fillStyle = boss.color;
+  ctx.fillStyle = boss.isAttacking ? "orange" : boss.color; // muda de cor ao atacar
   ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+  if (boss.isAttacking) {
+  ctx.beginPath();
+  ctx.arc(
+    boss.x + boss.width / 2,
+    boss.y + boss.height / 2,
+    30,
+    0,
+    Math.PI * 2
+  );
+  ctx.fillStyle = "rgba(255, 165, 0, 0.3)";
+  ctx.fill();
+}
+
+// ⬇️ Desenha a hitbox do boss
+ctx.strokeStyle = "black";
+ctx.strokeRect(boss.x, boss.y, boss.width, boss.height);
+// ⬇️ Desenha a hitbox de ataque do boss (expandida)
+const bossHitbox = {
+  x: boss.x - 0.1,
+  y: boss.y - 0.1,
+  width: boss.width + 0.2,
+  height: boss.height + 0.2,
+};
+ctx.strokeStyle = "orange";
+ctx.strokeRect(bossHitbox.x, bossHitbox.y, bossHitbox.width, bossHitbox.height);
+
+
 }
 
 
   updatePlayer();
+  
 
 // ⬇️ Verifica dano causado pelo player no boss durante o ataque
 if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead) {
@@ -444,6 +509,12 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
   drawShadow();  
   drawPlayer();
 
+  // Hitbox do jogador
+const playerHitbox = getHitbox(player);
+ctx.strokeStyle = "lime"; // verde
+ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.height);
+
+
   function distance(a, b) {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
@@ -452,9 +523,9 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
 
 function updateBoss() {
   const dist = distance(player, boss);
-  boss.isActive = dist < 400; // range para perseguição do boss
+  boss.isActive = dist < 400;
 
-  if (boss.isActive && boss.currentHealth > 0) {
+  if (boss.isActive && boss.currentHealth > 0 && !isColliding(player, boss)) {
     const dx = player.x - boss.x;
     const dy = player.y - boss.y;
     const len = Math.sqrt(dx * dx + dy * dy);
@@ -464,12 +535,36 @@ function updateBoss() {
     }
   }
 
-  // Causa dano ao player em colisão
- if (!boss.dead && isColliding(player, boss)) {
-  player.currentHealth -= 0.2;
+  const now = performance.now();
+
+  // DETECÇÃO DE ATAQUE COM DELAY
+  // Aumenta a hitbox do boss para fins de ataque
+const bossHitbox = {
+ x: boss.x - 1,
+ y: boss.y - 1,
+ width: boss.width + 1,
+ height: boss.height + 1,
+
+};
+
+if (!boss.dead && isColliding(player, bossHitbox)) {
+  if (!boss.isAttacking && now - boss.lastAttackTime > boss.attackCooldown) {
+    boss.isAttacking = true;
+    boss.lastAttackTime = now;
+
+    setTimeout(() => {
+      // Verifica novamente a colisão com a hitbox aumentada
+      if (isColliding(player, bossHitbox)) {
+        player.currentHealth -= 10;
+      }
+      boss.isAttacking = false;
+    }, boss.attackDuration);
+  }
 }
 
 }
+
+
 if (boss.currentHealth <= 0 && !boss.dead) {
   boss.currentHealth = 0;
   boss.isActive = false;
@@ -482,9 +577,9 @@ if (boss.currentHealth <= 0 && !boss.dead) {
   specialStone.collected = false;
 }
 
+  specialStone.collected = false;
 
 
-  requestAnimationFrame(gameLoop);
-
-  
+requestAnimationFrame(gameLoop);
 }
+
