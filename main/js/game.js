@@ -323,20 +323,22 @@ const bosses = [
 },
 
   {
-  x: canvas.width - 240,
-  y: 450 - 100 / 2,
-  width: 60,
-  height: 120,
-  color: "darkred",
-  speed: 1.2,
-  maxHealth: 300,
-  currentHealth: 300,
-  isActive: false,
-  dead: false,
-  attackCooldown: 1000,
-  lastAttackTime: 0,
-  isAttacking: false,
-  attackDuration: 400,
+ x: 1300- 100 / 2,  // centralizado na plataforma da Fase 1
+    y: 45 - 100 / 2,
+    width: 80,
+    height: 140,
+    color: "darkblue", // cor diferente pro boss da fase 2
+    speed: 1.6,
+    maxHealth: 250,
+    currentHealth: 250,
+    isActive: false,
+    dead: false,
+    attackCooldown: 1000, // 1 segundo entre ataques
+    lastAttackTime: 0,
+    isAttacking: false,
+    attackDuration: 400, // tempo visível de ataque
+    attackCooldown: 1000, // 1 segundo entre ataques
+    lastAttackTime: 0,
 },
 
 ];
@@ -373,13 +375,13 @@ function drawHealthBar(x, y, width, height, max, current, color) {
 
 // Loop principal
 function gameLoop() {
+  updatePlayerPosition()
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
 
   // Atualiza o boss da fase atual
   let boss = bosses[currentBackground];  // ⬅️ AQUI
 
- 
 drawBackground(); // primeiro desenha o fundo
 
 if (specialStone.visible && !specialStone.collected) {
@@ -436,7 +438,7 @@ if (boss.dead) {
 }
 
   //Verificar colisão do portal
- if (isColliding(player, portal)) {
+  if (boss.dead && isColliding(player, portal)) {
   // Vai para a próxima fase
   currentBackground = (currentBackground + 1) % backgrounds.length;
 
@@ -582,4 +584,21 @@ if (boss.currentHealth <= 0 && !boss.dead) {
 
 requestAnimationFrame(gameLoop);
 }
+  
 
+function updatePlayerPosition() {
+  if (!player.width || !player.height) return; // impede erros antes da animação carregar
+
+  if (keys["arrowup"] || keys["w"]) player.y -= player.speed;
+  if (keys["arrowdown"] || keys["s"]) player.y += player.speed;
+  if (keys["arrowleft"] || keys["a"]) player.x -= player.speed;
+  if (keys["arrowright"] || keys["d"]) player.x += player.speed;
+
+const centerOffsetX = (player.width * player.scale) / 2;
+const centerOffsetY = (player.height * player.scale) / 2;
+
+player.x = Math.max(0 - centerOffsetX, Math.min(canvas.width - centerOffsetX, player.x));
+player.y = Math.max(0 - centerOffsetY, Math.min(canvas.height - centerOffsetY, player.y));
+
+
+}
