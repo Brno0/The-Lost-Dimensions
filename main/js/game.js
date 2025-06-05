@@ -12,7 +12,8 @@ window.addEventListener("resize", resizeCanvas);
 // FUNDO DO JOGO
 const backgrounds = [
   { image: new Image(), src: "assets/background.png" },  // fase 1
-  { image: new Image(), src: "assets/background2.png" }  // fase 2
+  { image: new Image(), src: "assets/background2.png" },  // fase 2
+  { image: new Image(), src: "assets/background3.png" }   // fase 3
 ];
 let currentBackground = 0;
 backgrounds.forEach(bg => bg.image.src = bg.src);
@@ -46,6 +47,7 @@ const player = {
 const portalConfigs = [
   { x: canvas.width - 120, y: 70 },                             // Fase 1
   { x: canvas.width / 2 - 64, y: canvas.height - 140 },         // Fase 2
+  { x: 80, y: canvas.height / 2 - 64 }                           // fase 3
 ];
 
 const portal = {
@@ -340,6 +342,25 @@ const bosses = [
     attackCooldown: 1000, // 1 segundo entre ataques
     lastAttackTime: 0,
 },
+  {
+    x: canvas.width - 240, 
+    y: 450 - 100 / 2,
+    width: 80,
+    height: 140,
+    color: "crimson", // cor diferente pro boss da fase 2
+    speed: 1.6,
+    maxHealth: 250,
+    currentHealth: 250,
+    isActive: false,
+    dead: false,
+    attackCooldown: 1000, // 1 segundo entre ataques
+    lastAttackTime: 0,
+    isAttacking: false,
+    attackDuration: 400, // tempo visível de ataque
+    attackCooldown: 1000, // 1 segundo entre ataques
+    lastAttackTime: 0,
+  },
+
 
 ];
 const specialStone = {
