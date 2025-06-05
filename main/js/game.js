@@ -524,7 +524,7 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
   ctx.fillText("Você morreu!", canvas.width / 2 - 100, canvas.height / 2);
   return; // Para interromper o jogo
 }
-
+fbrkswfiucfsbd
 
   drawShadow();  
   drawPlayer();
