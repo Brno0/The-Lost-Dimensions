@@ -546,9 +546,13 @@ ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.
 
 function updateBoss() {
   const dist = distance(player, boss);
-  boss.isActive = dist < 400;
+  if (!boss.activatedOnce && dist < 400) {
+  boss.isActive = true;
+  boss.activatedOnce = true;
+}
 
-  if (boss.isActive && boss.currentHealth > 0 && !isColliding(player, boss)) {
+if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) {
+
     const dx = player.x - boss.x;
     const dy = player.y - boss.y;
     const len = Math.sqrt(dx * dx + dy * dy);

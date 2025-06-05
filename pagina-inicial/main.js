@@ -49,7 +49,14 @@ let historiaIndex = 0;
 let historiaTempo = 0;
 const TEMPO_POR_TELA = 15;
 
+let fadeAlpha = 0;
+let fading = false;
+let fadeDirection = 1;
+let pendingAdvance = false;
+
 let redirecionou = false;
+let mostrarMensagem = false;
+let tempoMensagem = 0;
 
 [...Object.values(assets).filter(a => !Array.isArray(a)), ...assets.historia].forEach(img => {
     img.onload = () => {
@@ -70,7 +77,9 @@ canvas.addEventListener('click', (e) => {
     const y = e.clientY;
 
     if (!iniciarHistoria && isInside(x, y, playButtonArea)) {
-        iniciarHistoria = true;
+        fadeDirection = 1;
+        fading = true;
+        pendingAdvance = true;
     }
 
     if (!iniciarHistoria && isInside(x, y, dicasButtonArea)) {
@@ -127,21 +136,52 @@ function gameLoop() {
                 img.height * scale
             );
         }
-    }
-
-    if (iniciarHistoria && historiaIndex < assets.historia.length) {
+    } else if (historiaIndex < assets.historia.length) {
         const img = assets.historia[historiaIndex];
         ctx.drawImage(img, 0, 0, width, height);
-        historiaTempo += 1 / 60;
-        if (historiaTempo >= TEMPO_POR_TELA) {
-            historiaIndex++;
-            historiaTempo = 0;
-        }
-    }
 
-    if (iniciarHistoria && historiaIndex >= assets.historia.length && !redirecionou) {
+        if (!fading) {
+            historiaTempo += 1 / 60;
+            if (historiaTempo >= TEMPO_POR_TELA) {
+                fadeDirection = 1;
+                fading = true;
+                historiaTempo = 0;
+            }
+        }
+    } else if (!mostrarMensagem) {
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, width, height);
+        ctx.font = '24px "Press Start 2P", monospace';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textAlign = 'center';
+        ctx.fillText("Iniciando a primeira fase!", width / 2, height / 2);
+        tempoMensagem += 1 / 60;
+        if (tempoMensagem > 2) {
+            mostrarMensagem = true;
+        }
+    } else if (!redirecionou) {
         redirecionou = true;
         window.location.href = '../main/index.html';
+    }
+
+    if (fading) {
+        fadeAlpha += fadeDirection * 0.05;
+        ctx.fillStyle = `rgba(0, 0, 0, ${fadeAlpha})`;
+        ctx.fillRect(0, 0, width, height);
+
+        if (fadeAlpha >= 1 && fadeDirection === 1) {
+            if (pendingAdvance) {
+                iniciarHistoria = true;
+                historiaIndex = 0;
+                pendingAdvance = false;
+            } else {
+                historiaIndex++;
+            }
+            fadeDirection = -1;
+        } else if (fadeAlpha <= 0 && fadeDirection === -1) {
+            fadeAlpha = 0;
+            fading = false;
+        }
     }
 
     requestAnimationFrame(gameLoop);
