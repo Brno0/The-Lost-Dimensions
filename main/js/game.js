@@ -12,8 +12,7 @@ window.addEventListener("resize", resizeCanvas);
 // FUNDO DO JOGO
 const backgrounds = [
   { image: new Image(), src: "assets/background.png" },  // fase 1
-  { image: new Image(), src: "assets/background2.png" },  // fase 2
-  { image: new Image(), src: "assets/background3.png" }   // fase 3
+  { image: new Image(), src: "assets/background2.png" }  // fase 2
 ];
 let currentBackground = 0;
 backgrounds.forEach(bg => bg.image.src = bg.src);
@@ -47,7 +46,6 @@ const player = {
 const portalConfigs = [
   { x: canvas.width - 120, y: 70 },                             // Fase 1
   { x: canvas.width / 2 - 64, y: canvas.height - 140 },         // Fase 2
-  { x: 80, y: canvas.height / 2 - 64 }                           // fase 3
 ];
 
 const portal = {
@@ -304,8 +302,6 @@ function updatePlayer() {
   }
 }
 
-// LOOP DO JOGO
-
 const bosses = [
   {
   x: canvas.width - 240,
@@ -313,10 +309,11 @@ const bosses = [
   width: 60,
   height: 120,
   color: "darkred",
-  speed: 1.2,
+  speed: 2.0,
   maxHealth: 200,
   currentHealth: 200,
   isActive: false,
+  activatedOnce: false, 
   dead: false,
   attackCooldown: 1000,
   lastAttackTime: 0,
@@ -342,25 +339,6 @@ const bosses = [
     attackCooldown: 1000, // 1 segundo entre ataques
     lastAttackTime: 0,
 },
-  {
-    x: canvas.width - 240, 
-    y: 450 - 100 / 2,
-    width: 80,
-    height: 140,
-    color: "crimson", // cor diferente pro boss da fase 2
-    speed: 1.6,
-    maxHealth: 250,
-    currentHealth: 250,
-    isActive: false,
-    dead: false,
-    attackCooldown: 1000, // 1 segundo entre ataques
-    lastAttackTime: 0,
-    isAttacking: false,
-    attackDuration: 400, // tempo visível de ataque
-    attackCooldown: 1000, // 1 segundo entre ataques
-    lastAttackTime: 0,
-  },
-
 
 ];
 const specialStone = {
@@ -545,10 +523,16 @@ ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.
 }
 
 function updateBoss() {
+  let boss = bosses[currentBackground];
   const dist = distance(player, boss);
-  boss.isActive = dist < 400;
+  // Ativa apenas uma vez quando o jogador se aproxima
+  if (!boss.activatedOnce && dist < 200) {
+    boss.isActive = true;
+    boss.activatedOnce = true;
+  }
 
-  if (boss.isActive && boss.currentHealth > 0 && !isColliding(player, boss)) {
+if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) {
+
     const dx = player.x - boss.x;
     const dy = player.y - boss.y;
     const len = Math.sqrt(dx * dx + dy * dy);
