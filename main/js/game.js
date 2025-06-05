@@ -12,7 +12,9 @@ window.addEventListener("resize", resizeCanvas);
 // FUNDO DO JOGO
 const backgrounds = [
   { image: new Image(), src: "assets/background.png" },  // fase 1
-  { image: new Image(), src: "assets/background2.png" }  // fase 2
+  { image: new Image(), src: "assets/background2.png" }, // fase 2
+  { image: new Image(), src: "assets/background3.png" },  // fase 3
+
 ];
 let currentBackground = 0;
 backgrounds.forEach(bg => bg.image.src = bg.src);
@@ -339,6 +341,23 @@ const bosses = [
     attackCooldown: 1000, // 1 segundo entre ataques
     lastAttackTime: 0,
 },
+{
+x: canvas.width - 240,
+  y: 450 - 100 / 2,
+  width: 60,
+  height: 120,
+  color: "darkred",
+  speed: 2.0,
+  maxHealth: 200,
+  currentHealth: 200,
+  isActive: false,
+  activatedOnce: false, 
+  dead: false,
+  attackCooldown: 1000,
+  lastAttackTime: 0,
+  isAttacking: false,
+  attackDuration: 400,
+},
 
 ];
 const specialStone = {
@@ -493,7 +512,7 @@ ctx.strokeRect(bossHitbox.x, bossHitbox.y, bossHitbox.width, bossHitbox.height);
 
 // ⬇️ Verifica dano causado pelo player no boss durante o ataque
 if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead) {
-  boss.currentHealth -= 0.5;
+  boss.currentHealth -= 2;
   if (boss.currentHealth < 0) boss.currentHealth = 0;
 }
 
