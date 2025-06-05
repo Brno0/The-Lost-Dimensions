@@ -302,8 +302,6 @@ function updatePlayer() {
   }
 }
 
-// LOOP DO JOGO
-
 const bosses = [
   {
   x: canvas.width - 240,
@@ -311,10 +309,11 @@ const bosses = [
   width: 60,
   height: 120,
   color: "darkred",
-  speed: 1.2,
+  speed: 2.0,
   maxHealth: 200,
   currentHealth: 200,
   isActive: false,
+  activatedOnce: false, 
   dead: false,
   attackCooldown: 1000,
   lastAttackTime: 0,
@@ -524,11 +523,17 @@ ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.
 }
 
 function updateBoss() {
+  let boss = bosses[currentBackground];
   const dist = distance(player, boss);
   if (!boss.activatedOnce && dist < 400) {
   boss.isActive = true;
   boss.activatedOnce = true;
 }
+  // Ativa apenas uma vez quando o jogador se aproxima
+  if (!boss.activatedOnce && dist < 200) {
+    boss.isActive = true;
+    boss.activatedOnce = true;
+  }
 
 if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) {
 
