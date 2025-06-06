@@ -75,8 +75,8 @@ function getHitbox(entity) {
 
   // Se for o player, ajustamos a hitbox manualmente
   if (entity === player) {
-  const marginX = width * 0.58; // antes 0.2
-  const marginY = height * 0.32; // antes 0.1
+  const marginX = width * 0.58; 
+  const marginY = height * 0.32; 
 
   x += marginX;
   y += marginY;
