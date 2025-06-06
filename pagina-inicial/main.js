@@ -77,10 +77,8 @@ canvas.addEventListener('click', (e) => {
     const y = e.clientY;
 
     if (!iniciarHistoria && isInside(x, y, playButtonArea)) {
-        fadeDirection = 1;
-        fading = true;
-        pendingAdvance = true;
-    }
+    window.location.href = "./paginasHistoria/index.html";
+}
 
     if (!iniciarHistoria && isInside(x, y, dicasButtonArea)) {
         dicasVisivel = !dicasVisivel;
@@ -161,7 +159,7 @@ function gameLoop() {
         }
     } else if (!redirecionou) {
         redirecionou = true;
-        window.location.href = '../main/index.html';
+        window.location.href = "./paginasHistoria/index.html";
     }
 
     if (fading) {
