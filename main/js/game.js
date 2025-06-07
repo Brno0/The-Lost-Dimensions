@@ -366,7 +366,7 @@ const specialStone = {
   visible: false,
   image: new Image(),
 };
-specialStone.image.src = "assets/pedras/gelo.png";
+specialStone.image.src = "../../assets/pedras/gelo.png";
 
 
 
@@ -395,7 +395,12 @@ function gameLoop() {
 
 drawBackground(); // primeiro desenha o fundo
 
-if (specialStone.visible && !specialStone.collected) {
+if (
+  specialStone.visible &&
+  !specialStone.collected &&
+  specialStone.image.complete &&
+  specialStone.image.naturalWidth > 0
+) {
   ctx.drawImage(
     specialStone.image,
     specialStone.x,
