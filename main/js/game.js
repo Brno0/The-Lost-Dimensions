@@ -11,10 +11,9 @@ window.addEventListener("resize", resizeCanvas);
 
 // FUNDO DO JOGO
 const backgrounds = [
-  { image: new Image(), src: "assets/background.png" },  // fase 1
-  { image: new Image(), src: "assets/background2.png" }, // fase 2
-  { image: new Image(), src: "assets/background3.png" },  // fase 3
-
+  { image: new Image(), src: "assets/mapas/background.png" },//FASE 1
+  { image: new Image(), src: "assets/mapas/background2.png" },//FASE 2
+  { image: new Image(), src: "assets/mapas/background3.png" },//FASE 3
 ];
 let currentBackground = 0;
 backgrounds.forEach(bg => bg.image.src = bg.src);
@@ -57,10 +56,10 @@ const portal = {
   height: 128,
   image: new Image(),
 };
-portal.image.src = "assets/portal.png";
+portal.image.src = "assets/itens/portal.png";
 
-portal.image.src = "assets/portal.png";
 
+  
 function getHitbox(entity) {
   // Valores padrão
   let x = entity.x;
@@ -165,7 +164,7 @@ loadSprite(`attack2_${dir}`, `assets/player/attack2_${dir}.png`, 8);
 // Fundo
 function drawBackground() {
   const bg = backgrounds[currentBackground].image;
-  if (bg.complete) {
+  if (bg.complete && bg.naturalWidth > 0) {
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
   }
 }
@@ -317,7 +316,7 @@ const bosses = [
   isActive: false,
   activatedOnce: false, 
   dead: false,
-  attackCooldown: 1000,
+  attackCooldown: 1000, // 1 segundo entre ataques
   lastAttackTime: 0,
   isAttacking: false,
   attackDuration: 400,
@@ -334,11 +333,9 @@ const bosses = [
     currentHealth: 250,
     isActive: false,
     dead: false,
-    attackCooldown: 1000, // 1 segundo entre ataques
-    lastAttackTime: 0,
     isAttacking: false,
     attackDuration: 400, // tempo visível de ataque
-    attackCooldown: 1000, // 1 segundo entre ataques
+   
     lastAttackTime: 0,
 },
 {
@@ -369,13 +366,9 @@ const specialStone = {
   visible: false,
   image: new Image(),
 };
-specialStone.image.src = "assets/gelo.png";
+specialStone.image.src = "assets/pedras/gelo.png";
 
 
-if (player.state.startsWith("attack") && isColliding(player, boss)) {
-  boss.currentHealth -= 0.5; // dano leve por ataque
-  if (boss.currentHealth < 0) boss.currentHealth = 0;
-}
 
 function drawHealthBar(x, y, width, height, max, current, color) {
   ctx.fillStyle = "gray"; // fundo da barra
@@ -393,7 +386,7 @@ function drawHealthBar(x, y, width, height, max, current, color) {
 
 // Loop principal
 function gameLoop() {
-  updatePlayerPosition()
+  
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
 
@@ -535,12 +528,6 @@ ctx.strokeStyle = "lime"; // verde
 ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.height);
 
 
-  function distance(a, b) {
-  const dx = a.x - b.x;
-  const dy = a.y - b.y;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
 function updateBoss() {
   let boss = bosses[currentBackground];
   const dist = distance(player, boss);
@@ -613,6 +600,11 @@ if (boss.currentHealth <= 0 && !boss.dead) {
 requestAnimationFrame(gameLoop);
 }
   
+  function distance(a, b) {
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
 
 function updatePlayerPosition() {
   if (!player.width || !player.height) return; // impede erros antes da animação carregar
