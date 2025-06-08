@@ -1,5 +1,5 @@
 //CONFIGURAÇÃO DO CANVAS
-const canvas = document.getElementById("gameCanvas"); 
+const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 function resizeCanvas() {
@@ -36,7 +36,7 @@ const player = {
   state: "idle_down",
   animations: {},
   width: 64,
-  height: 64,          
+  height: 64,
   scale: 2.0,          // tamanho Hagnar 
   shadowOffsetY: 0.88, // valor padrão para posição da sombra nos pés
   currentHealth: 100,
@@ -61,6 +61,10 @@ portal.image.src = "assets/portal.png";
 
 portal.image.src = "assets/portal.png";
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 function getHitbox(entity) {
   // Valores padrão
   let x = entity.x;
@@ -75,14 +79,14 @@ function getHitbox(entity) {
 
   // Se for o player, ajustamos a hitbox manualmente
   if (entity === player) {
-  const marginX = width * 0.58; 
-  const marginY = height * 0.32; 
+    const marginX = width * 0.58;
+    const marginY = height * 0.32;
 
-  x += marginX;
-  y += marginY;
-  width -= marginX * 2;
-  height -= marginY * 2;
-}
+    x += marginX;
+    y += marginY;
+    width -= marginX * 2;
+    height -= marginY * 2;
+  }
 
   return { x, y, width, height };
 }
@@ -155,10 +159,10 @@ function loadSprite(name, path, frameCount) {
 
 // Carregar animações
 directions.forEach(dir => {
-loadSprite(`idle_${dir}`, `assets/player/idle_${dir}.png`, 8);
-loadSprite(`run_${dir}`, `assets/player/run_${dir}.png`, 8);
-loadSprite(`attack1_${dir}`, `assets/player/attack1_${dir}.png`, 8);
-loadSprite(`attack2_${dir}`, `assets/player/attack2_${dir}.png`, 8);
+  loadSprite(`idle_${dir}`, `assets/player/idle_${dir}.png`, 8);
+  loadSprite(`run_${dir}`, `assets/player/run_${dir}.png`, 8);
+  loadSprite(`attack1_${dir}`, `assets/player/attack1_${dir}.png`, 8);
+  loadSprite(`attack2_${dir}`, `assets/player/attack2_${dir}.png`, 8);
 });
 
 // DESENHO NA TELA
@@ -172,7 +176,7 @@ function drawBackground() {
 
 // Player
 function drawPlayer() {
-  
+
   const anim = player.animations[player.state];
   if (!anim || !anim.image.complete) return;
 
@@ -237,15 +241,15 @@ function changeState(newState) {
     }
   }
   // Ajusta a sombra de acordo com a animação
-if (newState.startsWith("idle")) {
-  player.shadowOffsetY = 0.65;
-} else if (newState.startsWith("run")) {
-  player.shadowOffsetY = 0.65;
-} else if (newState.startsWith("attack")) {
-  player.shadowOffsetY = 0.65;
-} else {
-  player.shadowOffsetY = 0.65;
-}
+  if (newState.startsWith("idle")) {
+    player.shadowOffsetY = 0.65;
+  } else if (newState.startsWith("run")) {
+    player.shadowOffsetY = 0.65;
+  } else if (newState.startsWith("attack")) {
+    player.shadowOffsetY = 0.65;
+  } else {
+    player.shadowOffsetY = 0.65;
+  }
 
 }
 
@@ -284,6 +288,24 @@ function updatePlayer() {
     } else if (isMoving) {
       player.x += dx * player.speed;
       player.y += dy * player.speed;
+
+      //Colisão com as bordas da tela
+      const hitbox = getHitbox(player);
+
+      //Tamanho da margem para o hagnar colidir
+      const margemLateral = 35; 
+      const margemVertical = 0; 
+
+      if (hitbox.y < 0) player.y -= hitbox.y;
+      if (hitbox.y + hitbox.height > canvas.height)
+        player.y -= (hitbox.y + hitbox.height - canvas.height);
+
+      if (hitbox.x < margemLateral)
+        player.x += margemLateral - hitbox.x;
+
+      if (hitbox.x + hitbox.width > canvas.width - margemLateral)
+        player.x -= (hitbox.x + hitbox.width - (canvas.width - margemLateral));
+
       changeState("run_" + player.direction);
     } else {
       changeState("idle_" + player.direction);
@@ -306,6 +328,7 @@ function updatePlayer() {
 
 const bosses = [
   {
+<<<<<<< Updated upstream
   x: canvas.width - 240,
   y: 450 - 100 / 2,
   width: 60,
@@ -322,9 +345,27 @@ const bosses = [
   isAttacking: false,
   attackDuration: 400,
 },
+=======
+    x: canvas.width - 240,
+    y: 450 - 100 / 2,
+    width: 60,
+    height: 120,
+    color: "darkred",
+    speed: 2.0,
+    maxHealth: 200,
+    currentHealth: 200,
+    isActive: false,
+    activatedOnce: false,
+    dead: false,
+    attackCooldown: 1000, // 1 segundo entre ataques
+    lastAttackTime: 0,
+    isAttacking: false,
+    attackDuration: 400,
+  },
+>>>>>>> Stashed changes
 
   {
- x: 1300- 100 / 2,  // centralizado na plataforma da Fase 1
+    x: 1300 - 100 / 2,  // centralizado na plataforma da Fase 1
     y: 45 - 100 / 2,
     width: 80,
     height: 140,
@@ -338,26 +379,30 @@ const bosses = [
     lastAttackTime: 0,
     isAttacking: false,
     attackDuration: 400, // tempo visível de ataque
+<<<<<<< Updated upstream
     attackCooldown: 1000, // 1 segundo entre ataques
+=======
+
+>>>>>>> Stashed changes
     lastAttackTime: 0,
-},
-{
-x: canvas.width - 240,
-  y: 450 - 100 / 2,
-  width: 60,
-  height: 120,
-  color: "darkred",
-  speed: 2.0,
-  maxHealth: 200,
-  currentHealth: 200,
-  isActive: false,
-  activatedOnce: false, 
-  dead: false,
-  attackCooldown: 1000,
-  lastAttackTime: 0,
-  isAttacking: false,
-  attackDuration: 400,
-},
+  },
+  {
+    x: canvas.width - 240,
+    y: 450 - 100 / 2,
+    width: 60,
+    height: 120,
+    color: "darkred",
+    speed: 2.0,
+    maxHealth: 200,
+    currentHealth: 200,
+    isActive: false,
+    activatedOnce: false,
+    dead: false,
+    attackCooldown: 1000,
+    lastAttackTime: 0,
+    isAttacking: false,
+    attackDuration: 400,
+  },
 
 ];
 const specialStone = {
@@ -393,15 +438,20 @@ function drawHealthBar(x, y, width, height, max, current, color) {
 
 // Loop principal
 function gameLoop() {
+<<<<<<< Updated upstream
   updatePlayerPosition()
+=======
+
+>>>>>>> Stashed changes
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+
 
   // Atualiza o boss da fase atual
   let boss = bosses[currentBackground];  // ⬅️ AQUI
 
-drawBackground(); // primeiro desenha o fundo
+  drawBackground(); // primeiro desenha o fundo
 
+<<<<<<< Updated upstream
 if (specialStone.visible && !specialStone.collected) {
   ctx.drawImage(
     specialStone.image,
@@ -411,104 +461,120 @@ if (specialStone.visible && !specialStone.collected) {
     specialStone.height
   );
 }
+=======
+  if (
+    specialStone.visible &&
+    !specialStone.collected &&
+    specialStone.image.complete &&
+    specialStone.image.naturalWidth > 0
+  ) {
+    ctx.drawImage(
+      specialStone.image,
+      specialStone.x,
+      specialStone.y,
+      specialStone.width,
+      specialStone.height
+    );
+  }
+>>>>>>> Stashed changes
 
   // Verificar se o player está próximo da pedra para coletar
   const playerCenterX = player.x + (player.width * player.scale) / 2;
   const playerCenterY = player.y + (player.height * player.scale) / 2;
   const stoneCenterX = specialStone.x + specialStone.width / 2;
   const stoneCenterY = specialStone.y + specialStone.height / 2;
-  
+
   const distanceToStone = Math.sqrt(
     (playerCenterX - stoneCenterX) ** 2 + (playerCenterY - stoneCenterY) ** 2
   );
 
-if (
-  specialStone.visible &&
-  !specialStone.collected &&
-  distanceToStone < 80
-) {
-  // Exibe o texto de interação
-  ctx.fillStyle = "white";
-  ctx.font = "20px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText(
-    "Pressione 'E' para coletar",
-    specialStone.x + specialStone.width / 2,
-    specialStone.y - 10
-  );
+  if (
+    specialStone.visible &&
+    !specialStone.collected &&
+    distanceToStone < 80
+  ) {
+    // Exibe o texto de interação
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(
+      "Pressione 'E' para coletar",
+      specialStone.x + specialStone.width / 2,
+      specialStone.y - 10
+    );
 
-  // Coletar ao pressionar 'E'
-  if (keys["e"]) {
-    specialStone.collected = true;
-    specialStone.visible = false;
-    console.log("Pedra coletada!");
-    // Aqui você pode adicionar algum efeito, som ou alteração no jogo
+    // Coletar ao pressionar 'E'
+    if (keys["e"]) {
+      specialStone.collected = true;
+      specialStone.visible = false;
+      console.log("Pedra coletada!");
+      // Aqui você pode adicionar algum efeito, som ou alteração no jogo
+    }
   }
-}
 
-// Depois, desenha tudo o que vai por cima do fundo
-drawHealthBar(20, canvas.height - 30, 200, 20, 100, player.currentHealth, "green");
-drawHealthBar(canvas.width / 2 - 150, 20, 300, 20, boss.maxHealth, boss.currentHealth, "red");
+  // Depois, desenha tudo o que vai por cima do fundo
+  drawHealthBar(20, canvas.height - 30, 200, 20, 100, player.currentHealth, "green");
+  drawHealthBar(canvas.width / 2 - 150, 20, 300, 20, boss.maxHealth, boss.currentHealth, "red");
 
-if (boss.dead) {
-  drawPortalShadow();
-  ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
-}
+  if (boss.dead) {
+    drawPortalShadow();
+    ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
+  }
 
   //Verificar colisão do portal
   if (boss.dead && isColliding(player, portal)) {
-  // Vai para a próxima fase
-  currentBackground = (currentBackground + 1) % backgrounds.length;
+    // Vai para a próxima fase
+    currentBackground = (currentBackground + 1) % backgrounds.length;
 
 
-  // Atualiza posição do portal com base na nova fase
-  const config = portalConfigs[currentBackground] || portalConfigs[0];
-  portal.x = config.x;
-  portal.y = config.y;
+    // Atualiza posição do portal com base na nova fase
+    const config = portalConfigs[currentBackground] || portalConfigs[0];
+    portal.x = config.x;
+    portal.y = config.y;
 
-  // Posiciona o jogador
-  player.x = 50;
-  player.y = 50;
-  player.currentHealth = 100; // Regenera a vida
+    // Posiciona o jogador
+    player.x = 50;
+    player.y = 50;
+    player.currentHealth = 100; // Regenera a vida
 
-}
+  }
 
-updateBoss();
-if (!boss.dead) {
-  ctx.fillStyle = boss.isAttacking ? "orange" : boss.color; // muda de cor ao atacar
-  ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
-  if (boss.isAttacking) {
-  ctx.beginPath();
-  ctx.arc(
-    boss.x + boss.width / 2,
-    boss.y + boss.height / 2,
-    30,
-    0,
-    Math.PI * 2
-  );
-  ctx.fillStyle = "rgba(255, 165, 0, 0.3)";
-  ctx.fill();
-}
+  updateBoss();
+  if (!boss.dead) {
+    ctx.fillStyle = boss.isAttacking ? "orange" : boss.color; // muda de cor ao atacar
+    ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+    if (boss.isAttacking) {
+      ctx.beginPath();
+      ctx.arc(
+        boss.x + boss.width / 2,
+        boss.y + boss.height / 2,
+        30,
+        0,
+        Math.PI * 2
+      );
+      ctx.fillStyle = "rgba(255, 165, 0, 0.3)";
+      ctx.fill();
+    }
 
-// ⬇️ Desenha a hitbox do boss
-ctx.strokeStyle = "black";
-ctx.strokeRect(boss.x, boss.y, boss.width, boss.height);
-// ⬇️ Desenha a hitbox de ataque do boss (expandida)
-const bossHitbox = {
-  x: boss.x - 0.1,
-  y: boss.y - 0.1,
-  width: boss.width + 0.2,
-  height: boss.height + 0.2,
-};
-ctx.strokeStyle = "orange";
-ctx.strokeRect(bossHitbox.x, bossHitbox.y, bossHitbox.width, bossHitbox.height);
+    // ⬇️ Desenha a hitbox do boss
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(boss.x, boss.y, boss.width, boss.height);
+    // ⬇️ Desenha a hitbox de ataque do boss (expandida)
+    const bossHitbox = {
+      x: boss.x - 0.1,
+      y: boss.y - 0.1,
+      width: boss.width + 0.2,
+      height: boss.height + 0.2,
+    };
+    ctx.strokeStyle = "orange";
+    ctx.strokeRect(bossHitbox.x, bossHitbox.y, bossHitbox.width, bossHitbox.height);
 
 
-}
+  }
 
 
   updatePlayer();
-  
+
 
 // ⬇️ Verifica dano causado pelo player no boss durante o ataque
 if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead) {
@@ -517,16 +583,16 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
 }
 
   if (player.currentHealth <= 0) {
-  player.currentHealth = 0;
-  player.speed = 0;
-  ctx.fillStyle = "black";
-  ctx.font = "40px Arial";
-  ctx.fillText("Você morreu!", canvas.width / 2 - 100, canvas.height / 2);
-  return; // Para interromper o jogo
-}
+    player.currentHealth = 0;
+    player.speed = 0;
+    ctx.fillStyle = "black";
+    ctx.font = "40px Arial";
+    ctx.fillText("Você morreu!", canvas.width / 2 - 100, canvas.height / 2);
+    return; // Para interromper o jogo
+  }
 
 
-  drawShadow();  
+  drawShadow();
   drawPlayer();
 
   // Hitbox do jogador
@@ -535,6 +601,7 @@ ctx.strokeStyle = "lime"; // verde
 ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.height);
 
 
+<<<<<<< Updated upstream
   function distance(a, b) {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
@@ -562,57 +629,89 @@ if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) 
     if (len > 0) {
       boss.x += (dx / len) * boss.speed;
       boss.y += (dy / len) * boss.speed;
+=======
+  function updateBoss() {
+    let boss = bosses[currentBackground];
+    const dist = distance(player, boss);
+    if (!boss.activatedOnce && dist < 400) {
+      boss.isActive = true;
+      boss.activatedOnce = true;
     }
-  }
+    // Ativa apenas uma vez quando o jogador se aproxima
+    if (!boss.activatedOnce && dist < 200) {
+      boss.isActive = true;
+      boss.activatedOnce = true;
+>>>>>>> Stashed changes
+    }
 
-  const now = performance.now();
+    if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) {
 
-  // DETECÇÃO DE ATAQUE COM DELAY
-  // Aumenta a hitbox do boss para fins de ataque
-const bossHitbox = {
- x: boss.x - 1,
- y: boss.y - 1,
- width: boss.width + 1,
- height: boss.height + 1,
-
-};
-
-if (!boss.dead && isColliding(player, bossHitbox)) {
-  if (!boss.isAttacking && now - boss.lastAttackTime > boss.attackCooldown) {
-    boss.isAttacking = true;
-    boss.lastAttackTime = now;
-
-    setTimeout(() => {
-      // Verifica novamente a colisão com a hitbox aumentada
-      if (isColliding(player, bossHitbox)) {
-        player.currentHealth -= 10;
+      const dx = player.x - boss.x;
+      const dy = player.y - boss.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len > 0) {
+        boss.x += (dx / len) * boss.speed;
+        boss.y += (dy / len) * boss.speed;
       }
-      boss.isAttacking = false;
-    }, boss.attackDuration);
+    }
+
+    const now = performance.now();
+
+    // DETECÇÃO DE ATAQUE COM DELAY
+    // Aumenta a hitbox do boss para fins de ataque
+    const bossHitbox = {
+      x: boss.x - 1,
+      y: boss.y - 1,
+      width: boss.width + 1,
+      height: boss.height + 1,
+
+    };
+
+    if (!boss.dead && isColliding(player, bossHitbox)) {
+      if (!boss.isAttacking && now - boss.lastAttackTime > boss.attackCooldown) {
+        boss.isAttacking = true;
+        boss.lastAttackTime = now;
+
+        setTimeout(() => {
+          // Verifica novamente a colisão com a hitbox aumentada
+          if (isColliding(player, bossHitbox)) {
+            player.currentHealth -= 10;
+          }
+          boss.isAttacking = false;
+        }, boss.attackDuration);
+      }
+    }
+
   }
-}
-
-}
 
 
-if (boss.currentHealth <= 0 && !boss.dead) {
-  boss.currentHealth = 0;
-  boss.isActive = false;
-  boss.dead = true;
+  if (boss.currentHealth <= 0 && !boss.dead) {
+    boss.currentHealth = 0;
+    boss.isActive = false;
+    boss.dead = true;
 
-  // Faz a pedra aparecer na posição do boss
-  specialStone.x = boss.x + boss.width / 2 - specialStone.width / 2;
-  specialStone.y = boss.y + boss.height / 2 - specialStone.height / 2;
-  specialStone.visible = true;
-  specialStone.collected = false;
-}
+    // Faz a pedra aparecer na posição do boss
+    specialStone.x = boss.x + boss.width / 2 - specialStone.width / 2;
+    specialStone.y = boss.y + boss.height / 2 - specialStone.height / 2;
+    specialStone.visible = true;
+    specialStone.collected = false;
+  }
 
   specialStone.collected = false;
 
 
-requestAnimationFrame(gameLoop);
+  requestAnimationFrame(gameLoop);
 }
+<<<<<<< Updated upstream
   
+=======
+
+function distance(a, b) {
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+>>>>>>> Stashed changes
 
 function updatePlayerPosition() {
   if (!player.width || !player.height) return; // impede erros antes da animação carregar
@@ -622,11 +721,11 @@ function updatePlayerPosition() {
   if (keys["arrowleft"] || keys["a"]) player.x -= player.speed;
   if (keys["arrowright"] || keys["d"]) player.x += player.speed;
 
-const centerOffsetX = (player.width * player.scale) / 2;
-const centerOffsetY = (player.height * player.scale) / 2;
+  const centerOffsetX = (player.width * player.scale) / 2;
+  const centerOffsetY = (player.height * player.scale) / 2;
 
-player.x = Math.max(0 - centerOffsetX, Math.min(canvas.width - centerOffsetX, player.x));
-player.y = Math.max(0 - centerOffsetY, Math.min(canvas.height - centerOffsetY, player.y));
+  player.x = Math.max(0 - centerOffsetX, Math.min(canvas.width - centerOffsetX, player.x));
+  player.y = Math.max(0 - centerOffsetY, Math.min(canvas.height - centerOffsetY, player.y));
 
 
 }
