@@ -509,10 +509,21 @@ ctx.strokeRect(bossHitbox.x, bossHitbox.y, bossHitbox.width, bossHitbox.height);
   
 
 // ⬇️ Verifica dano causado pelo player no boss durante o ataque
-if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead) {
-  boss.currentHealth -= 2;
-  if (boss.currentHealth < 0) boss.currentHealth = 0;
+// Verifica dano ao boss apenas se estiver na frente do player
+if (player.state.startsWith("attack") && !boss.dead) {
+  const attackBox = getAttackBox(player);
+  const bossHitbox = getHitbox(boss);
+
+  if (isColliding(attackBox, bossHitbox)) {
+    boss.currentHealth -= 2;
+    if (boss.currentHealth < 0) boss.currentHealth = 0;
+  }
+
+  // Debug (opcional): desenhar a área de ataque
+  ctx.strokeStyle = "yellow";
+  ctx.strokeRect(attackBox.x, attackBox.y, attackBox.width, attackBox.height);
 }
+
 
   if (player.currentHealth <= 0) {
   player.currentHealth = 0;
@@ -529,6 +540,46 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
 
   // Hitbox do jogador
 const playerHitbox = getHitbox(player);
+function getAttackBox(player) {
+  const range = 40; // distância em pixels do alcance do ataque
+  const hitbox = getHitbox(player);
+
+  let attackBox = {
+    x: hitbox.x,
+    y: hitbox.y,
+    width: hitbox.width,
+    height: hitbox.height
+  };
+
+  switch (player.direction) {
+    case "up":
+      attackBox.y -= range;
+      break;
+    case "down":
+      attackBox.y += hitbox.height;
+      break;
+    case "left":
+      attackBox.x -= range;
+      break;
+    case "right":
+      attackBox.x += hitbox.width;
+      break;
+  }
+
+  // ataque geralmente é uma faixa mais estreita
+  if (player.direction === "left" || player.direction === "right") {
+    attackBox.width = range;
+    attackBox.height = hitbox.height * 0.6;
+    attackBox.y += hitbox.height * 0.2;
+  } else {
+    attackBox.height = range;
+    attackBox.width = hitbox.width * 0.6;
+    attackBox.x += hitbox.width * 0.2;
+  }
+
+  return attackBox;
+}
+
 ctx.strokeStyle = "lime"; // verde
 ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.height);
 
