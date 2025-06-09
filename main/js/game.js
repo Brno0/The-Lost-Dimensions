@@ -17,12 +17,33 @@ const backgrounds = [
 
 ];
 let currentBackground = 0;
+// 🎧 ÁUDIOS DO JOGO
+const sounds = {
+  sword: new Audio("assets/audio/sword-sound.mp3"),
+  dead: new Audio("assets/audio/dead.mp3"),
+  music: new Audio("assets/audio/musica.mp3"),
+};
+sounds.music.loop = true;
+sounds.music.volume = 0.2; // ← volume mais baixo (20%)
+
+sounds.music.loop = true;
+
 backgrounds.forEach(bg => bg.image.src = bg.src);
 
 // CONTROLE DO TECLADO
 const keys = {};
 document.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
 document.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
+
+let musicStarted = false;
+
+document.addEventListener("keydown", () => {
+  if (!musicStarted) {
+    sounds.music.play();
+    musicStarted = true;
+  }
+});
+
 
 // PERSONAGEM (HAGNAR)
 const player = {
@@ -59,7 +80,33 @@ const portal = {
 };
 portal.image.src = "assets/portal.png";
 
-portal.image.src = "assets/portal.png";
+// SPRITESHEET DO BOSS (fase 1)
+const bossSheet = new Image();
+bossSheet.src = "assets/bosses/frost_guardian_free_192x128_SpriteSheet.png";
+
+// SPRITESHEET DOS BOSS 2 E 3
+const boss2Sheet = new Image();
+boss2Sheet.src = "assets/bosses/boss2.png"; // coloque o caminho certo da sprite do boss2
+
+const boss3Sheet = new Image();
+boss3Sheet.src = "assets/bosses/boss3.png"; // coloque o caminho certo da sprite do boss3
+
+
+const bossAnimationData = {
+  frameWidth: 192,
+  frameHeight: 128,
+  frameCount: 10,
+  frameDelay: 6,
+  animations: {
+    idle: 0,
+    run: 1,
+    attack: 2,
+    dead: 3
+  },
+  currentFrame: 0,
+  frameCounter: 0
+};
+
 
 function getHitbox(entity) {
   // Valores padrão
@@ -136,6 +183,13 @@ let loadedCount = 0;
 const directions = ["down", "left", "right", "up"];
 const totalToLoad = directions.length * 4; // idle, run, attack1, attack2
 
+const bossAnimations = {
+  boss1: {}
+};
+
+const bossStates = ["idle", "attack", "dead"];
+
+
 function loadSprite(name, path, frameCount) {
   const img = new Image();
   img.src = path;
@@ -149,9 +203,16 @@ function loadSprite(name, path, frameCount) {
     loadedCount++;
     if (loadedCount === totalToLoad) {
       gameLoop(); // Inicia o jogo quando todas as animações estiverem carregadas
+        
+      if (sounds.music.paused) { // Iniciar música de fundo se ainda não estiver tocando
+        
+}
+
     }
   };
 }
+
+
 
 // Carregar animações
 directions.forEach(dir => {
@@ -160,6 +221,7 @@ loadSprite(`run_${dir}`, `assets/player/run_${dir}.png`, 8);
 loadSprite(`attack1_${dir}`, `assets/player/attack1_${dir}.png`, 8);
 loadSprite(`attack2_${dir}`, `assets/player/attack2_${dir}.png`, 8);
 });
+
 
 // DESENHO NA TELA
 // Fundo
@@ -255,16 +317,20 @@ function updatePlayer() {
   if (keys["w"]) {
     dy = -1;
     player.direction = "up";
+  
   } else if (keys["s"]) {
     dy = 1;
     player.direction = "down";
+    
   }
   if (keys["a"]) {
     dx = -1;
     player.direction = "left";
+    
   } else if (keys["d"]) {
     dx = 1;
     player.direction = "right";
+    
   }
 
   const isMoving = dx !== 0 || dy !== 0;
@@ -279,8 +345,14 @@ function updatePlayer() {
     // Se ataque foi iniciado
     if (keys["j"]) {
       changeState("attack1_" + player.direction);
+      sounds.sword.currentTime = 0;
+      sounds.sword.play();
+
     } else if (keys["k"]) {
       changeState("attack2_" + player.direction);
+      sounds.sword.currentTime = 0;
+      sounds.sword.play();
+
     } else if (isMoving) {
       player.x += dx * player.speed;
       player.y += dy * player.speed;
@@ -306,11 +378,10 @@ function updatePlayer() {
 
 const bosses = [
   {
-  x: canvas.width - 240,
+  x: canvas.width - 280,
   y: 450 - 100 / 2,
-  width: 60,
-  height: 120,
-  color: "darkred",
+  width: 150,
+  height: 128,
   speed: 2.0,
   maxHealth: 200,
   currentHealth: 200,
@@ -321,10 +392,11 @@ const bosses = [
   lastAttackTime: 0,
   isAttacking: false,
   attackDuration: 400,
+  facingLeft: true,
 },
 
   {
- x: 1300- 100 / 2,  // centralizado na plataforma da Fase 1
+ x: 1300- 100 / 2,
     y: 45 - 100 / 2,
     width: 80,
     height: 140,
@@ -340,6 +412,7 @@ const bosses = [
     attackDuration: 400, // tempo visível de ataque
     attackCooldown: 1000, // 1 segundo entre ataques
     lastAttackTime: 0,
+    facingLeft: true,
 },
 {
 x: canvas.width - 240,
@@ -356,7 +429,8 @@ x: canvas.width - 240,
   attackCooldown: 1000,
   lastAttackTime: 0,
   isAttacking: false,
-  attackDuration: 400,
+  attackDuration: 600,
+  facingLeft: true,
 },
 
 ];
@@ -387,6 +461,51 @@ function drawHealthBar(x, y, width, height, max, current, color) {
 
   ctx.strokeStyle = "black";
   ctx.strokeRect(x, y, width, height); // borda
+}
+
+
+function drawBossFromSheet(boss, sheet) {
+  let state = "idle";
+  boss.facingLeft = player.x < boss.x;
+
+  if (boss.dead && boss.deathAnimationPlayed) return;
+  if (boss.dead && !boss.deathAnimationPlayed) state = "dead";
+  else if (boss.isAttacking) state = "attack";
+  else if (boss.isActive) state = "run";
+
+  const animLine = bossAnimationData.animations[state];
+  if (!sheet.complete) return;
+
+  const sx = bossAnimationData.currentFrame * bossAnimationData.frameWidth;
+  const sy = animLine * bossAnimationData.frameHeight;
+  const sw = bossAnimationData.frameWidth;
+  const sh = bossAnimationData.frameHeight;
+
+  const offsetX = (boss.width - sw) / 2;
+  const offsetY = (boss.height - sh) / 2;
+
+  const scaleX = boss.facingLeft ? 1 : -1;
+  const drawX = boss.facingLeft ? boss.x + offsetX : -(boss.x + offsetX) - sw;
+
+  ctx.save();
+  ctx.scale(scaleX, 1);
+
+  ctx.drawImage(sheet, sx, sy, sw, sh, drawX, boss.y + offsetY, sw, sh);
+  ctx.restore();
+
+  bossAnimationData.frameCounter++;
+  if (bossAnimationData.frameCounter >= bossAnimationData.frameDelay) {
+    bossAnimationData.frameCounter = 0;
+    if (state === "dead") {
+      if (bossAnimationData.currentFrame < bossAnimationData.frameCount - 1) {
+        bossAnimationData.currentFrame++;
+      } else {
+        boss.deathAnimationPlayed = true;
+      }
+    } else {
+      bossAnimationData.currentFrame = (bossAnimationData.currentFrame + 1) % bossAnimationData.frameCount;
+    }
+  }
 }
 
 
@@ -475,8 +594,14 @@ if (boss.dead) {
 
 updateBoss();
 if (!boss.dead) {
-  ctx.fillStyle = boss.isAttacking ? "orange" : boss.color; // muda de cor ao atacar
-  ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+  if (currentBackground === 0) {
+    drawBossFromSheet(boss, bossSheet);
+  } else if (currentBackground === 1) {
+    drawBossFromSheet(boss, boss2Sheet);
+  } else if (currentBackground === 2) {
+    drawBossFromSheet(boss, boss3Sheet);
+  }
+
   if (boss.isAttacking) {
   ctx.beginPath();
   ctx.arc(
@@ -515,6 +640,8 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
   boss.currentHealth -= 2;
   if (boss.currentHealth < 0) boss.currentHealth = 0;
 }
+
+
 
   if (player.currentHealth <= 0) {
   player.currentHealth = 0;
@@ -581,16 +708,21 @@ if (!boss.dead && isColliding(player, bossHitbox)) {
   if (!boss.isAttacking && now - boss.lastAttackTime > boss.attackCooldown) {
     boss.isAttacking = true;
     boss.lastAttackTime = now;
+    boss.attackFrameCount = 0;
+
+    const attackFrames = bossAnimationData.frameCount; // total de frames de ataque
+    const attackFrameDelay = bossAnimationData.frameDelay;
+    const attackTotalDuration = attackFrames * attackFrameDelay * (1000 / 60); // ms
 
     setTimeout(() => {
-      // Verifica novamente a colisão com a hitbox aumentada
       if (isColliding(player, bossHitbox)) {
-        player.currentHealth -= 10;
+        player.currentHealth -= 10; // dano real somente após animação
       }
       boss.isAttacking = false;
-    }, boss.attackDuration);
+    }, attackTotalDuration);
   }
 }
+
 
 }
 
@@ -599,12 +731,21 @@ if (boss.currentHealth <= 0 && !boss.dead) {
   boss.currentHealth = 0;
   boss.isActive = false;
   boss.dead = true;
+  sounds.dead.currentTime = 0;
+  sounds.dead.play();
+
+   // Parar música se for o último boss (fase 3)
+  if (currentBackground === 2) {
+    sounds.music.pause();
+    sounds.music.currentTime = 0;
+}
 
   // Faz a pedra aparecer na posição do boss
   specialStone.x = boss.x + boss.width / 2 - specialStone.width / 2;
   specialStone.y = boss.y + boss.height / 2 - specialStone.height / 2;
   specialStone.visible = true;
   specialStone.collected = false;
+
 }
 
   specialStone.collected = false;

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>História - The Lost Dimensions</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: black;
+    }
+    canvas {
+      display: block;
+    }
+    #btnPular {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 110px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvasHistoria"></canvas>
+<img id="btnPular" src="pular.png" alt="Pular">
+
+<script>
+  const canvas = document.getElementById("canvasHistoria");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const imagens = [
+    "pag1.png",
+    "pag2.png",
+    "pag3.png",
+    "pag4.png"
+  ];
+
+  let index = 0;
+  const img = new Image();
+
+  function desenharImagem() {
+    img.src = imagens[index];
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+  }
+
+  document.getElementById("btnPular").addEventListener("click", () => {
+    index++;
+    if (index >= imagens.length) {
+      window.location.href = "../../main/index.html";
+    } else {
+      desenharImagem();
+    }
+  });
+
+  desenharImagem();
+
+  window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    desenharImagem();
+  });
+</script>
+
+</body>
+</html>
