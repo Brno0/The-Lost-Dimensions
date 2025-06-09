@@ -1,3 +1,4 @@
+//CONFIGURAÇÃO DO CANVAS
 const canvas = document.getElementById("gameCanvas"); 
 const ctx = canvas.getContext("2d");
 
@@ -8,10 +9,12 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-// Fundo
+// FUNDO DO JOGO
 const backgrounds = [
-  { image: new Image(), src: "assets/background.png" },       // fase 1
-  { image: new Image(), src: "assets/background2.png" }  // fase 2
+  { image: new Image(), src: "assets/background.png" },  // fase 1
+  { image: new Image(), src: "assets/background2.png" }, // fase 2
+  { image: new Image(), src: "assets/background3.png" },  // fase 3
+
 ];
 let currentBackground = 0;
 // 🎧 ÁUDIOS DO JOGO
@@ -27,7 +30,7 @@ sounds.music.loop = true;
 
 backgrounds.forEach(bg => bg.image.src = bg.src);
 
-// Teclado
+// CONTROLE DO TECLADO
 const keys = {};
 document.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
 document.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
@@ -42,29 +45,30 @@ document.addEventListener("keydown", () => {
 });
 
 
-// PLAYER
+// PERSONAGEM (HAGNAR)
 const player = {
   x: 100,
   y: 100,
   frame: 0,
   frameDelay: 4,
   frameCounter: 0,
-  speed: 2.8,
+  speed: 2.8,          // velocidade Hagnar
   direction: "down",
   state: "idle_down",
   animations: {},
   width: 64,
-  height: 64, 
-  scale: 2.0,
+  height: 64,          
+  scale: 2.0,          // tamanho Hagnar 
   shadowOffsetY: 0.88, // valor padrão para posição da sombra nos pés
   currentHealth: 100,
 
 
 };
+
+// PORTAL ENTRE FASES
 const portalConfigs = [
-  { x: canvas.width - 120, y: 70 },                              // Fase 1
-  { x: canvas.width / 2 - 64, y: canvas.height - 140 },         // Fase 2 (meio inferior)
-  // Adicione mais posições aqui para fases futuras
+  { x: canvas.width - 120, y: 70 },                             // Fase 1
+  { x: canvas.width / 2 - 64, y: canvas.height - 140 },         // Fase 2
 ];
 
 const portal = {
@@ -104,16 +108,52 @@ const bossAnimationData = {
 };
 
 
+function getHitbox(entity) {
+  // Valores padrão
+  let x = entity.x;
+  let y = entity.y;
+  let width = entity.width || 0;
+  let height = entity.height || 0;
+  let scale = entity.scale || 1;
 
+  // Redimensiona com escala (se existir)
+  width *= scale;
+  height *= scale;
+
+  // Se for o player, ajustamos a hitbox manualmente
+  if (entity === player) {
+  const marginX = width * 0.58; // antes 0.2
+  const marginY = height * 0.32; // antes 0.1
+
+  x += marginX;
+  y += marginY;
+  width -= marginX * 2;
+  height -= marginY * 2;
+}
+
+  return { x, y, width, height };
+}
+
+
+// DETECÇÃO DE COLISÃO PORTAL
 function isColliding(a, b) {
-  const buffer = 40; // reduz o tamanho efetivo da colisão
   return (
-    a.x < b.x + b.width - buffer &&
-    a.x + a.width > b.x + buffer &&
-    a.y < b.y + b.height - buffer &&
-    a.y + a.height > b.y + buffer
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
   );
 }
+
+
+function isCircleColliding(a, b, radius) {
+  const dx = (a.x + a.width / 2) - (b.x + b.width / 2);
+  const dy = (a.y + a.height / 2) - (b.y + b.height / 2);
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  return distance < radius;
+}
+
+
 //Sombra portal
 function drawPortalShadow() {
   const shadowWidth = portal.width * 0.8;
@@ -138,10 +178,7 @@ function drawPortalShadow() {
   ctx.restore();
 }
 
-
-
-
-// Contador de sprites carregadas
+// CARREGAMENTO DE ANIMAÇÕES
 let loadedCount = 0;
 const directions = ["down", "left", "right", "up"];
 const totalToLoad = directions.length * 4; // idle, run, attack1, attack2
@@ -179,14 +216,14 @@ function loadSprite(name, path, frameCount) {
 
 // Carregar animações
 directions.forEach(dir => {
-  loadSprite(`idle_${dir}`, `assets/player/idle_${dir}.png`, 8);
-  loadSprite(`run_${dir}`, `assets/player/run_${dir}.png`, 8);
- loadSprite(`attack1_${dir}`, `assets/player/attack1_${dir}.png`, 8);
+loadSprite(`idle_${dir}`, `assets/player/idle_${dir}.png`, 8);
+loadSprite(`run_${dir}`, `assets/player/run_${dir}.png`, 8);
+loadSprite(`attack1_${dir}`, `assets/player/attack1_${dir}.png`, 8);
 loadSprite(`attack2_${dir}`, `assets/player/attack2_${dir}.png`, 8);
-
 });
 
 
+// DESENHO NA TELA
 // Fundo
 function drawBackground() {
   const bg = backgrounds[currentBackground].image;
@@ -194,8 +231,6 @@ function drawBackground() {
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
   }
 }
-
-
 
 // Player
 function drawPlayer() {
@@ -249,8 +284,6 @@ function drawShadow() {
   ctx.fill();
   ctx.restore();
 }
-
-
 
 // Atualiza lógica do jogador
 function changeState(newState) {
@@ -412,17 +445,6 @@ const specialStone = {
 };
 specialStone.image.src = "assets/gelo.png";
 
-const boss = {
-  x: canvas.width - 200,
-  y: canvas.height / 2,
-  width: 100,
-  height: 100,
-  color: "darkred",
-  speed: 1.2,
-  maxHealth: 100,
-  currentHealth: 100,
-  isActive: false, // só ativa quando player se aproxima
-};
 
 if (player.state.startsWith("attack") && isColliding(player, boss)) {
   boss.currentHealth -= 0.5; // dano leve por ataque
@@ -488,26 +510,75 @@ function drawBossFromSheet(boss, sheet) {
 
 
 
-
-
-
 // Loop principal
 function gameLoop() {
+  updatePlayerPosition()
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+
+  // Atualiza o boss da fase atual
+  let boss = bosses[currentBackground];  // ⬅️ AQUI
 
 drawBackground(); // primeiro desenha o fundo
+
+if (specialStone.visible && !specialStone.collected) {
+  ctx.drawImage(
+    specialStone.image,
+    specialStone.x,
+    specialStone.y,
+    specialStone.width,
+    specialStone.height
+  );
+}
+
+  // Verificar se o player está próximo da pedra para coletar
+  const playerCenterX = player.x + (player.width * player.scale) / 2;
+  const playerCenterY = player.y + (player.height * player.scale) / 2;
+  const stoneCenterX = specialStone.x + specialStone.width / 2;
+  const stoneCenterY = specialStone.y + specialStone.height / 2;
+  
+  const distanceToStone = Math.sqrt(
+    (playerCenterX - stoneCenterX) ** 2 + (playerCenterY - stoneCenterY) ** 2
+  );
+
+if (
+  specialStone.visible &&
+  !specialStone.collected &&
+  distanceToStone < 80
+) {
+  // Exibe o texto de interação
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(
+    "Pressione 'E' para coletar",
+    specialStone.x + specialStone.width / 2,
+    specialStone.y - 10
+  );
+
+  // Coletar ao pressionar 'E'
+  if (keys["e"]) {
+    specialStone.collected = true;
+    specialStone.visible = false;
+    console.log("Pedra coletada!");
+    // Aqui você pode adicionar algum efeito, som ou alteração no jogo
+  }
+}
 
 // Depois, desenha tudo o que vai por cima do fundo
 drawHealthBar(20, canvas.height - 30, 200, 20, 100, player.currentHealth, "green");
 drawHealthBar(canvas.width / 2 - 150, 20, 300, 20, boss.maxHealth, boss.currentHealth, "red");
 
-drawPortalShadow();
-ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
+if (boss.dead) {
+  drawPortalShadow();
+  ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
+}
 
   //Verificar colisão do portal
- if (isColliding(player, portal)) {
+  if (boss.dead && isColliding(player, portal)) {
   // Vai para a próxima fase
   currentBackground = (currentBackground + 1) % backgrounds.length;
+
 
   // Atualiza posição do portal com base na nova fase
   const config = portalConfigs[currentBackground] || portalConfigs[0];
@@ -517,6 +588,8 @@ ctx.drawImage(portal.image, portal.x, portal.y, portal.width, portal.height);
   // Posiciona o jogador
   player.x = 50;
   player.y = 50;
+  player.currentHealth = 100; // Regenera a vida
+
 }
 
 updateBoss();
@@ -558,15 +631,13 @@ ctx.strokeRect(bossHitbox.x, bossHitbox.y, bossHitbox.width, bossHitbox.height);
 
 }
 
-  ctx.fillStyle = boss.color;
-  ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
-}
 
   updatePlayer();
+  
 
 // ⬇️ Verifica dano causado pelo player no boss durante o ataque
 if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead) {
-  boss.currentHealth -= 0.5;
+  boss.currentHealth -= 2;
   if (boss.currentHealth < 0) boss.currentHealth = 0;
 }
 
@@ -585,6 +656,12 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
   drawShadow();  
   drawPlayer();
 
+  // Hitbox do jogador
+const playerHitbox = getHitbox(player);
+ctx.strokeStyle = "lime"; // verde
+ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.height);
+
+
   function distance(a, b) {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
@@ -592,10 +669,20 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
 }
 
 function updateBoss() {
+  let boss = bosses[currentBackground];
   const dist = distance(player, boss);
-  boss.isActive = dist < 400; // range para perseguição do boss
+  if (!boss.activatedOnce && dist < 400) {
+  boss.isActive = true;
+  boss.activatedOnce = true;
+}
+  // Ativa apenas uma vez quando o jogador se aproxima
+  if (!boss.activatedOnce && dist < 200) {
+    boss.isActive = true;
+    boss.activatedOnce = true;
+  }
 
-  if (boss.isActive && boss.currentHealth > 0) {
+if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) {
+
     const dx = player.x - boss.x;
     const dy = player.y - boss.y;
     const len = Math.sqrt(dx * dx + dy * dy);
@@ -641,12 +728,6 @@ if (!boss.dead && isColliding(player, bossHitbox)) {
 
 
 if (boss.currentHealth <= 0 && !boss.dead) {
-  // Causa dano ao player em colisão
-  if (isColliding(player, boss)) {
-    player.currentHealth -= 0.2; // dano contínuo leve
-  }
-}
-if (boss.currentHealth <= 0) {
   boss.currentHealth = 0;
   boss.isActive = false;
   boss.dead = true;
@@ -667,9 +748,26 @@ if (boss.currentHealth <= 0) {
 
 }
 
+  specialStone.collected = false;
 
 
-  requestAnimationFrame(gameLoop);
-
+requestAnimationFrame(gameLoop);
+}
   
+
+function updatePlayerPosition() {
+  if (!player.width || !player.height) return; // impede erros antes da animação carregar
+
+  if (keys["arrowup"] || keys["w"]) player.y -= player.speed;
+  if (keys["arrowdown"] || keys["s"]) player.y += player.speed;
+  if (keys["arrowleft"] || keys["a"]) player.x -= player.speed;
+  if (keys["arrowright"] || keys["d"]) player.x += player.speed;
+
+const centerOffsetX = (player.width * player.scale) / 2;
+const centerOffsetY = (player.height * player.scale) / 2;
+
+player.x = Math.max(0 - centerOffsetX, Math.min(canvas.width - centerOffsetX, player.x));
+player.y = Math.max(0 - centerOffsetY, Math.min(canvas.height - centerOffsetY, player.y));
+
+
 }
