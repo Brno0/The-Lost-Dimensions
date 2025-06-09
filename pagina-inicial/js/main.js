@@ -20,14 +20,14 @@ const assets = {
     ]
 };
 
-assets.background.src = 'assets/intro.png';
-assets.play_button.src = 'assets/button_play.PNG';
-assets.dicas_button.src = 'assets/buttonDicas.png';
-assets.painel_dicas.src = 'assets/dicasThelost.PNG';
-assets.historia[0].src = 'paginasHistoria/pag1.png';
-assets.historia[1].src = 'paginasHistoria/pag2.png';
-assets.historia[2].src = 'paginasHistoria/pag3.png';
-assets.historia[3].src = 'paginasHistoria/pag4.png';
+assets.background.src     = '../assets/intro.png';
+assets.play_button.src     = '../assets/button_play.PNG';
+assets.dicas_button.src    = '../assets/buttonDicas.png';
+assets.painel_dicas.src    = '../assets/dicasThelost.PNG';
+assets.historia[0].src     = '../paginasHistoria/pag1.png';
+assets.historia[1].src     = '../paginasHistoria/pag2.png';
+assets.historia[2].src     = '../paginasHistoria/pag3.png';
+assets.historia[3].src     = '../paginasHistoria/pag4.png';
 
 let assetsLoaded = 0;
 const totalAssets = 4 + assets.historia.length;
@@ -77,7 +77,7 @@ canvas.addEventListener('click', (e) => {
     const y = e.clientY;
 
     if (!iniciarHistoria && isInside(x, y, playButtonArea)) {
-    window.location.href = "./paginasHistoria/index.html";
+    window.location.href = "../paginasHistoria/index.html";
 }
 
     if (!iniciarHistoria && isInside(x, y, dicasButtonArea)) {
@@ -159,7 +159,7 @@ function gameLoop() {
         }
     } else if (!redirecionou) {
         redirecionou = true;
-        window.location.href = "./paginasHistoria/index.html";
+        window.location.href = "../paginasHistoria/index.html";
     }
 
     if (fading) {

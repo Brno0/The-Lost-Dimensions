@@ -11,10 +11,9 @@ window.addEventListener("resize", resizeCanvas);
 
 // FUNDO DO JOGO
 const backgrounds = [
-  { image: new Image(), src: "assets/background.png" },  // fase 1
-  { image: new Image(), src: "assets/background2.png" }, // fase 2
-  { image: new Image(), src: "assets/background3.png" },  // fase 3
-
+  { image: new Image(), src: "assets/mapas/background.png" },//FASE 1
+  { image: new Image(), src: "assets/mapas/background2.png" },//FASE 2
+  { image: new Image(), src: "assets/mapas/background3.png" },//FASE 3
 ];
 let currentBackground = 0;
 backgrounds.forEach(bg => bg.image.src = bg.src);
@@ -57,14 +56,10 @@ const portal = {
   height: 128,
   image: new Image(),
 };
-portal.image.src = "assets/portal.png";
+portal.image.src = "assets/itens/portal.png";
 
-portal.image.src = "assets/portal.png";
 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 function getHitbox(entity) {
   // Valores padrão
   let x = entity.x;
@@ -169,7 +164,7 @@ directions.forEach(dir => {
 // Fundo
 function drawBackground() {
   const bg = backgrounds[currentBackground].image;
-  if (bg.complete) {
+  if (bg.complete && bg.naturalWidth > 0) {
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
   }
 }
@@ -328,24 +323,6 @@ function updatePlayer() {
 
 const bosses = [
   {
-<<<<<<< Updated upstream
-  x: canvas.width - 240,
-  y: 450 - 100 / 2,
-  width: 60,
-  height: 120,
-  color: "darkred",
-  speed: 2.0,
-  maxHealth: 200,
-  currentHealth: 200,
-  isActive: false,
-  activatedOnce: false, 
-  dead: false,
-  attackCooldown: 1000,
-  lastAttackTime: 0,
-  isAttacking: false,
-  attackDuration: 400,
-},
-=======
     x: canvas.width - 240,
     y: 450 - 100 / 2,
     width: 60,
@@ -362,7 +339,6 @@ const bosses = [
     isAttacking: false,
     attackDuration: 400,
   },
->>>>>>> Stashed changes
 
   {
     x: 1300 - 100 / 2,  // centralizado na plataforma da Fase 1
@@ -375,15 +351,9 @@ const bosses = [
     currentHealth: 250,
     isActive: false,
     dead: false,
-    attackCooldown: 1000, // 1 segundo entre ataques
-    lastAttackTime: 0,
     isAttacking: false,
     attackDuration: 400, // tempo visível de ataque
-<<<<<<< Updated upstream
-    attackCooldown: 1000, // 1 segundo entre ataques
-=======
 
->>>>>>> Stashed changes
     lastAttackTime: 0,
   },
   {
@@ -414,13 +384,9 @@ const specialStone = {
   visible: false,
   image: new Image(),
 };
-specialStone.image.src = "assets/gelo.png";
+specialStone.image.src = "../../assets/pedras/gelo.png";
 
 
-if (player.state.startsWith("attack") && isColliding(player, boss)) {
-  boss.currentHealth -= 0.5; // dano leve por ataque
-  if (boss.currentHealth < 0) boss.currentHealth = 0;
-}
 
 function drawHealthBar(x, y, width, height, max, current, color) {
   ctx.fillStyle = "gray"; // fundo da barra
@@ -438,11 +404,7 @@ function drawHealthBar(x, y, width, height, max, current, color) {
 
 // Loop principal
 function gameLoop() {
-<<<<<<< Updated upstream
-  updatePlayerPosition()
-=======
 
->>>>>>> Stashed changes
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 
@@ -451,17 +413,6 @@ function gameLoop() {
 
   drawBackground(); // primeiro desenha o fundo
 
-<<<<<<< Updated upstream
-if (specialStone.visible && !specialStone.collected) {
-  ctx.drawImage(
-    specialStone.image,
-    specialStone.x,
-    specialStone.y,
-    specialStone.width,
-    specialStone.height
-  );
-}
-=======
   if (
     specialStone.visible &&
     !specialStone.collected &&
@@ -476,7 +427,6 @@ if (specialStone.visible && !specialStone.collected) {
       specialStone.height
     );
   }
->>>>>>> Stashed changes
 
   // Verificar se o player está próximo da pedra para coletar
   const playerCenterX = player.x + (player.width * player.scale) / 2;
@@ -576,11 +526,11 @@ if (specialStone.visible && !specialStone.collected) {
   updatePlayer();
 
 
-// ⬇️ Verifica dano causado pelo player no boss durante o ataque
-if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead) {
-  boss.currentHealth -= 2;
-  if (boss.currentHealth < 0) boss.currentHealth = 0;
-}
+  // ⬇️ Verifica dano causado pelo player no boss durante o ataque
+  if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead) {
+    boss.currentHealth -= 2;
+    if (boss.currentHealth < 0) boss.currentHealth = 0;
+  }
 
   if (player.currentHealth <= 0) {
     player.currentHealth = 0;
@@ -596,40 +546,11 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
   drawPlayer();
 
   // Hitbox do jogador
-const playerHitbox = getHitbox(player);
-ctx.strokeStyle = "lime"; // verde
-ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.height);
+  const playerHitbox = getHitbox(player);
+  ctx.strokeStyle = "lime"; // verde
+  ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.height);
 
 
-<<<<<<< Updated upstream
-  function distance(a, b) {
-  const dx = a.x - b.x;
-  const dy = a.y - b.y;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
-function updateBoss() {
-  let boss = bosses[currentBackground];
-  const dist = distance(player, boss);
-  if (!boss.activatedOnce && dist < 400) {
-  boss.isActive = true;
-  boss.activatedOnce = true;
-}
-  // Ativa apenas uma vez quando o jogador se aproxima
-  if (!boss.activatedOnce && dist < 200) {
-    boss.isActive = true;
-    boss.activatedOnce = true;
-  }
-
-if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) {
-
-    const dx = player.x - boss.x;
-    const dy = player.y - boss.y;
-    const len = Math.sqrt(dx * dx + dy * dy);
-    if (len > 0) {
-      boss.x += (dx / len) * boss.speed;
-      boss.y += (dy / len) * boss.speed;
-=======
   function updateBoss() {
     let boss = bosses[currentBackground];
     const dist = distance(player, boss);
@@ -641,7 +562,6 @@ if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) 
     if (!boss.activatedOnce && dist < 200) {
       boss.isActive = true;
       boss.activatedOnce = true;
->>>>>>> Stashed changes
     }
 
     if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) {
@@ -702,16 +622,12 @@ if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) 
 
   requestAnimationFrame(gameLoop);
 }
-<<<<<<< Updated upstream
-  
-=======
 
 function distance(a, b) {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
   return Math.sqrt(dx * dx + dy * dy);
 }
->>>>>>> Stashed changes
 
 function updatePlayerPosition() {
   if (!player.width || !player.height) return; // impede erros antes da animação carregar
