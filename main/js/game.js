@@ -57,13 +57,13 @@ const portal = {
   image: new Image(),
 };
 portal.image.src = "assets/itens/portal.png";
+<<<<<<< HEAD
 
-
-
-<<<<<<< Updated upstream
 =======
+>>>>>>> brntestes
 
->>>>>>> Stashed changes
+
+
 function getHitbox(entity) {
   // Valores padrão
   let x = entity.x;
@@ -328,6 +328,7 @@ function updatePlayer() {
 const bosses = [
   {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< Updated upstream
   x: canvas.width - 240,
@@ -348,6 +349,8 @@ const bosses = [
 },
 =======
 >>>>>>> brntestes
+=======
+>>>>>>> brntestes
     x: canvas.width - 240,
     y: 450 - 100 / 2,
     width: 60,
@@ -365,8 +368,11 @@ const bosses = [
     attackDuration: 400,
   },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Stashed changes
+>>>>>>> brntestes
+=======
 >>>>>>> brntestes
 
   {
@@ -383,6 +389,7 @@ const bosses = [
     isAttacking: false,
     attackDuration: 400, // tempo visível de ataque
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 <<<<<<< Updated upstream
@@ -390,6 +397,9 @@ const bosses = [
 =======
 
 >>>>>>> Stashed changes
+>>>>>>> brntestes
+=======
+
 >>>>>>> brntestes
     lastAttackTime: 0,
   },
@@ -442,6 +452,7 @@ function drawHealthBar(x, y, width, height, max, current, color) {
 // Loop principal
 function gameLoop() {
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 <<<<<<< Updated upstream
@@ -449,6 +460,9 @@ function gameLoop() {
 =======
 
 >>>>>>> Stashed changes
+>>>>>>> brntestes
+=======
+
 >>>>>>> brntestes
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -458,6 +472,7 @@ function gameLoop() {
 
   drawBackground(); // primeiro desenha o fundo
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< Updated upstream
@@ -470,6 +485,8 @@ if (specialStone.visible && !specialStone.collected) {
     specialStone.height
   );
 }
+=======
+>>>>>>> brntestes
 =======
 >>>>>>> brntestes
   if (
@@ -487,8 +504,11 @@ if (specialStone.visible && !specialStone.collected) {
     );
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Stashed changes
+>>>>>>> brntestes
+=======
 >>>>>>> brntestes
 
   // Verificar se o player está próximo da pedra para coletar
@@ -619,6 +639,7 @@ if (specialStone.visible && !specialStone.collected) {
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   function updateBoss() {
     let boss = bosses[currentBackground];
     const dist = distance(player, boss);
@@ -725,6 +746,8 @@ if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) 
       boss.x += (dx / len) * boss.speed;
       boss.y += (dy / len) * boss.speed;
 =======
+=======
+>>>>>>> brntestes
   function updateBoss() {
     let boss = bosses[currentBackground];
     const dist = distance(player, boss);
@@ -736,7 +759,6 @@ if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) 
     if (!boss.activatedOnce && dist < 200) {
       boss.isActive = true;
       boss.activatedOnce = true;
->>>>>>> Stashed changes
     }
 
     if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) {
@@ -797,16 +819,12 @@ if (boss.activatedOnce && boss.currentHealth > 0 && !isColliding(player, boss)) 
 
   requestAnimationFrame(gameLoop);
 }
-<<<<<<< Updated upstream
-  
-=======
 
 function distance(a, b) {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
   return Math.sqrt(dx * dx + dy * dy);
 }
->>>>>>> Stashed changes
 
 >>>>>>> brntestes
 function updatePlayerPosition() {
