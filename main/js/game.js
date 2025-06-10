@@ -24,7 +24,7 @@ const sounds = {
   music: new Audio("assets/audio/musica.mp3"),
 };
 sounds.music.loop = true;
-sounds.music.volume = 0.2; // ← volume mais baixo (20%)
+sounds.music.volume = 0.1; // ← volume mais baixo (20%)
 
 sounds.music.loop = true;
 
@@ -756,18 +756,22 @@ requestAnimationFrame(gameLoop);
   
 
 function updatePlayerPosition() {
-  if (!player.width || !player.height) return; // impede erros antes da animação carregar
+const hitbox = getHitbox(player);
 
-  if (keys["arrowup"] || keys["w"]) player.y -= player.speed;
-  if (keys["arrowdown"] || keys["s"]) player.y += player.speed;
-  if (keys["arrowleft"] || keys["a"]) player.x -= player.speed;
-  if (keys["arrowright"] || keys["d"]) player.x += player.speed;
+// MARGENS DE SEGURANÇA (ajuste se quiser mais ou menos)
+const margemLateral = 35; // distancia extra que ele vai ficar afastado da borda
+const margemVertical = 0; // mantemos o topo e base como estão
 
-const centerOffsetX = (player.width * player.scale) / 2;
-const centerOffsetY = (player.height * player.scale) / 2;
+// CIMA E BAIXO — permanece igual
+if (hitbox.y < 0) player.y -= hitbox.y;
+if (hitbox.y + hitbox.height > canvas.height)
+  player.y -= (hitbox.y + hitbox.height - canvas.height);
 
-player.x = Math.max(0 - centerOffsetX, Math.min(canvas.width - centerOffsetX, player.x));
-player.y = Math.max(0 - centerOffsetY, Math.min(canvas.height - centerOffsetY, player.y));
+// LADOS — com margem
+if (hitbox.x < margemLateral)
+  player.x += margemLateral - hitbox.x;
 
+if (hitbox.x + hitbox.width > canvas.width - margemLateral)
+  player.x -= (hitbox.x + hitbox.width - (canvas.width - margemLateral));
 
 }
