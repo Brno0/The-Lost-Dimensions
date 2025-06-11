@@ -11,9 +11,9 @@ window.addEventListener("resize", resizeCanvas);
 
 // FUNDO DO JOGO
 const backgrounds = [
-  { image: new Image(), src: "assets/background.png" },  // fase 1
-  { image: new Image(), src: "assets/background2.png" }, // fase 2
-  { image: new Image(), src: "assets/background3.png" },  // fase 3
+  { image: new Image(), src: "assets/mapas/background.png" },  // fase 1
+  { image: new Image(), src: "assets/mapas/background2.png" }, // fase 2
+  { image: new Image(), src: "assets/mapas/background3.png" },  // fase 3
 
 ];
 let currentBackground = 0;
@@ -105,7 +105,7 @@ const portal = {
   height: 128,
   image: new Image(),
 };
-portal.image.src = "assets/portal.png";
+portal.image.src = "assets/itens/portal.png";
 
 const spawnPoint = {
   x: 50,
@@ -115,7 +115,7 @@ const spawnPoint = {
   image: new Image(),
   visible: true
 };
-spawnPoint.image.src = "assets/spawn.png"; // Caminho da sua imagem
+spawnPoint.image.src = "assets/itens/spawn.png"; // Caminho da sua imagem
 
 
 // SPRITESHEET DO BOSS (fase 1)
