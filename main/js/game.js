@@ -667,22 +667,7 @@ if (!boss.dead) {
   );
   ctx.fillStyle = "rgba(255, 165, 0, 0.3)";
   ctx.fill();
-}
-
-// ⬇️ Desenha a hitbox do boss
-ctx.strokeStyle = "black";
-ctx.strokeRect(boss.x, boss.y, boss.width, boss.height);
-// ⬇️ Desenha a hitbox de ataque do boss (expandida)
-const bossHitbox = {
-  x: boss.x - 0.1,
-  y: boss.y - 0.1,
-  width: boss.width + 0.2,
-  height: boss.height + 0.2,
-};
-ctx.strokeStyle = "orange";
-ctx.strokeRect(bossHitbox.x, bossHitbox.y, bossHitbox.width, bossHitbox.height);
-
-
+ }
 }
 
 
@@ -721,10 +706,7 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
   drawShadow();  
   drawPlayer();
 
-  // Hitbox do jogador
-const playerHitbox = getHitbox(player);
-ctx.strokeStyle = "lime"; // verde
-ctx.strokeRect(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.height);
+ 
 
 
   function distance(a, b) {
