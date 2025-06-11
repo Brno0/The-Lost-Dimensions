@@ -487,7 +487,7 @@ const specialStone = {
   visible: false,
   image: new Image(),
 };
-specialStone.image.src = "assets/gelo.png";
+specialStone.image.src = "assets/pedras/gelo.png";
 
 
 if (player.state.startsWith("attack") && isColliding(player, boss)) {
