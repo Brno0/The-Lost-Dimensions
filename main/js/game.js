@@ -52,7 +52,7 @@ const player = {
   frame: 0,
   frameDelay: 4,
   frameCounter: 0,
-  speed: 2.8,          // velocidade Hagnar
+  speed: 10,          // velocidade Hagnar
   direction: "down",
   state: "idle_down",
   animations: {},
@@ -64,6 +64,33 @@ const player = {
 
 
 };
+
+// Controle de cura no spawn
+let lastHealTime = 0;
+const healCooldown = 1000; // tempo entre curas (1 segundo)
+const healAmount = 5;     // quantidade de vida recuperada por vez
+
+
+function respawnPlayerAt(x, y) {
+  spawnPoint.x = x;
+  spawnPoint.y = y;
+  spawnPoint.visible = true;
+
+  // Posiciona o jogador exatamente sobre o canto superior esquerdo da imagem do spawn
+  player.x = x;
+  player.y = y;
+}
+
+
+function respawnPlayerAt(x, y) {
+  player.x = x;
+  player.y = y;
+
+  spawnPoint.x = x;
+  spawnPoint.y = y;
+  spawnPoint.visible = true;
+}
+
 
 // PORTAL ENTRE FASES
 const portalConfigs = [
@@ -79,6 +106,17 @@ const portal = {
   image: new Image(),
 };
 portal.image.src = "assets/portal.png";
+
+const spawnPoint = {
+  x: 50,
+  y: 50,
+  width: 110,
+  height: 110,
+  image: new Image(),
+  visible: true
+};
+spawnPoint.image.src = "assets/spawn.png"; // Caminho da sua imagem
+
 
 // SPRITESHEET DO BOSS (fase 1)
 const bossSheet = new Image();
@@ -201,8 +239,10 @@ function loadSprite(name, path, frameCount) {
       frameHeight: img.height
     };
     loadedCount++;
-    if (loadedCount === totalToLoad) {
-      gameLoop(); // Inicia o jogo quando todas as animações estiverem carregadas
+   if (loadedCount === totalToLoad) {
+  respawnPlayerAt(50, 50); // ou qualquer posição desejada
+  gameLoop();
+
         
       if (sounds.music.paused) { // Iniciar música de fundo se ainda não estiver tocando
         
@@ -343,15 +383,19 @@ function updatePlayer() {
     }
   } else {
     // Se ataque foi iniciado
-    if (keys["j"]) {
-      changeState("attack1_" + player.direction);
-      sounds.sword.currentTime = 0;
-      sounds.sword.play();
 
-    } else if (keys["k"]) {
-      changeState("attack2_" + player.direction);
-      sounds.sword.currentTime = 0;
-      sounds.sword.play();
+   const isInSpawn = isColliding(getHitbox(player), spawnPoint);
+
+if (keys["j"] && !isInSpawn) {
+  changeState("attack1_" + player.direction);
+  sounds.sword.currentTime = 0;
+  sounds.sword.play();
+
+} else if (keys["k"] && !isInSpawn) {
+  changeState("attack2_" + player.direction);
+  sounds.sword.currentTime = 0;
+  sounds.sword.play();
+
 
     } else if (isMoving) {
       player.x += dx * player.speed;
@@ -521,6 +565,11 @@ function gameLoop() {
 
 drawBackground(); // primeiro desenha o fundo
 
+if (spawnPoint.visible) {
+  ctx.drawImage(spawnPoint.image, spawnPoint.x, spawnPoint.y, spawnPoint.width, spawnPoint.height);
+}
+
+
 if (specialStone.visible && !specialStone.collected) {
   ctx.drawImage(
     specialStone.image,
@@ -585,12 +634,17 @@ if (boss.dead) {
   portal.x = config.x;
   portal.y = config.y;
 
-  // Posiciona o jogador
-  player.x = 50;
-  player.y = 50;
-  player.currentHealth = 100; // Regenera a vida
+
+ respawnPlayerAt(50, 50); // ou qualquer posição central que você queira
+player.currentHealth = 100;
+
 
 }
+
+  spawnPoint.x = 90;
+  spawnPoint.y = 105;
+  spawnPoint.visible = true;
+
 
 updateBoss();
 if (!boss.dead) {
@@ -632,9 +686,20 @@ ctx.strokeRect(bossHitbox.x, bossHitbox.y, bossHitbox.width, bossHitbox.height);
 }
 
 
-  updatePlayer();
-  
+ updatePlayer();
 
+if (spawnPoint.visible && isColliding(getHitbox(player), spawnPoint)) {
+  const now = performance.now();
+  if (now - lastHealTime >= healCooldown && player.currentHealth < 100) {
+    player.currentHealth += healAmount;
+    if (player.currentHealth > 100) player.currentHealth = 100;
+    lastHealTime = now;
+    console.log("Cura gradual no Spawn! Vida atual:", player.currentHealth);
+  }
+}
+
+
+  
 // ⬇️ Verifica dano causado pelo player no boss durante o ataque
 if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead) {
   boss.currentHealth -= 2;
