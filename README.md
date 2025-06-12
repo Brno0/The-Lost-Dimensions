@@ -66,7 +66,7 @@ Romulo Pardim - Desenvolvedor
 Victor Kaua - Desenvolvedor
   Hotbar e Spawn com cura
 Vitor Hugo - Desenvolvedor
-  Sprites
+  Sprites e portal
 
 
 Professor Hugo Fumero — Orientação e Avaliação
