@@ -1,0 +1,36 @@
+body {
+  margin: 0;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+#container {
+  text-align: center;
+}
+
+img {
+  max-width: 90vw;
+  max-height: 80vh;
+  border: 3px solid white;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 12px 24px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background-color: #ccc;
+}

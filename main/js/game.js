@@ -587,9 +587,16 @@ function gameLoop() {
     }
 
     if (faseTransicaoAtiva && tempoTransicaoFase >= tempoExibirTransicao) {
-      faseTransicaoAtiva = false;
-      tempoTransicaoFase = 0;
-    }
+  if (currentBackground === 2) {
+    window.location.href = "../../pagina-final/index.html";
+    return;
+  }
+
+  currentBackground++;
+  faseTransicaoAtiva = false;
+  tempoTransicaoFase = 0;
+}
+
 
     requestAnimationFrame(gameLoop);
     return;
