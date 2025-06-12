@@ -24,30 +24,47 @@ JavaScript
 Canvas API
 Git & GitHub
 
-▶️ Como Executar
-Clone o repositório:
+🔧 Como Executar
+Siga os passos abaixo para rodar o jogo localmente:
 
-bash
-Copiar
-Editar
-git clone https://github.com/seu-usuario/The-Lost-Dimensions.git
-Navegue até a pasta do projeto e abra pagina-inicial/index.html no navegador. **(ATÉ O MOMENTO)**
+1. Clone o repositório
+Abra o cmd em uma pasta qualquer da sua maquina
+git clone https://github.com/Brno0/The-Lost-Dimensions.git
+
+2. Navegue até a pasta do projeto
+ The-Lost-Dimensions  
+
+3. Abra o arquivo inicial no navegador
+Vá até a pasta:
+pagina-inicial/html/
+
+Clique duas vezes no arquivo index.html para abrir no navegador
+ou clique com o botão direito e selecione "Abrir com → Navegador".
+
+💡 Certifique-se de que todos os arquivos da pasta assets, main, pagina-final e paginasHistoria estejam corretamente posicionados no projeto.
+
+4. Curta a experiência!
+Use as teclas W, A, S, D para se mover.
+
+J e K para atacar.
+
+Derrote os guardiões e colete as pedras para avançar de fase!
 
 📌 Observações
 - O jogo ainda está em desenvolvimento e novas fases e recursos serão adicionados.
 - O código foi escrito com fins didáticos, visando a prática de conceitos de front-end e lógica de programação.
 
 👥 Contribuidores
-Bruno Torres Pacheco — Desenvolvedor
-  Manutenção no Git, código e Imagens
+Bruno Torres Pacheco — P.O
+  Manutenção no Git, código e Imagens/ História
 Bruno Herold - Desenvolvedor
-  Criação de mapas e imagens
-Ricardo Henrique - Desenvolvedor
+  Criação de mapas e lógica das pedras
+Ricardo Henrique - Scrum Master
   Movimentação e Organização
 Romulo Pardim - Desenvolvedor
-  Criação de mapas, Tela inicial e combate
+  Criação de mapas, combate
 Victor Kaua - Desenvolvedor
-  Colisão e Imagens
+  Hotbar e Spawn com cura
 Vitor Hugo - Desenvolvedor
   Sprites
 
