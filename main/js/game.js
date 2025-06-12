@@ -23,6 +23,22 @@ const backgrounds = [
   { image: new Image(), src: "assets/mapas/background3.png" },  // fase 3
 
 ];
+
+const stoneImages = [
+  new Image(),
+  new Image(),
+  new Image()
+]
+
+const hotbarImage = new Image();
+hotbarImage.src = "assets/itens/hotbar.png";
+
+stoneImages[0].src = "assets/pedras/gelo.png";
+stoneImages[1].src = "assets/pedras/terra.png";
+stoneImages[2].src = "assets/pedras/fogo.png";
+
+const collectedStones = [false, false, false];
+
 let currentBackground = 0;
 // 🎧 ÁUDIOS DO JOGO
 const sounds = {
@@ -632,6 +648,59 @@ function gameLoop() {
     return;
   }
 
+function drawHotbar() {
+  const hotbarWidth = 250;
+  const hotbarHeight = 90;
+  const padding = 10;
+  const x = canvas.width - hotbarWidth - padding;
+  const y = canvas.height - hotbarHeight - padding;
+
+  // Desenha a imagem da hotbar
+  ctx.drawImage(hotbarImage, x, y, hotbarWidth, hotbarHeight);
+
+  const slotCount = 3;
+  const slotWidth = 64;
+  const slotHeight = 64;
+  const slotSpacing = 8;
+  const stoneSize = 40;
+
+  const totalWidth = (slotWidth * slotCount) + (slotSpacing * (slotCount - 1));
+  const startX = x + (hotbarWidth - totalWidth) / 2;
+  const slotY = y + (hotbarHeight - slotHeight) / 2;
+
+  for (let i = 0; i < slotCount; i++) {
+    if (collectedStones[i]) {
+      const slotX = startX + i * (slotWidth + slotSpacing);
+      const centerX = slotX + slotWidth / 2;
+      const centerY = slotY + slotHeight / 2;
+
+      // Valores individuais de ajuste fino para cada pedra
+      let offsetX = 0;
+      let offsetY = 0;
+
+      if (i === 0) { // Gelo
+        offsetX = -18;
+        offsetY = 1;
+      } else if (i === 1) { // Terra
+        offsetX = -3;
+        offsetY = 1;
+      } else if (i === 2) { // Fogo
+        offsetX = 10;
+        offsetY = 1;
+      }
+
+      ctx.drawImage(
+        stoneImages[i],
+        centerX - stoneSize / 2 + offsetX,
+        centerY - stoneSize / 2 + offsetY,
+        stoneSize,
+        stoneSize
+      );
+    }
+  }
+}
+
+
   // Atualiza o boss da fase atual
   let boss = bosses[currentBackground];  // ⬅️ AQUI
 
@@ -689,8 +758,10 @@ if (
   if (keys["e"]) {
     specialStone.collected = true;
     specialStone.visible = false;
+
+    collectedStones[currentBackground] = true;
+
     console.log("Pedra coletada!");
-    // Aqui você pode adicionar algum efeito, som ou alteração no jogo
   }
 }
 
@@ -796,6 +867,8 @@ if (player.state.startsWith("attack") && isColliding(player, boss) && !boss.dead
 
   drawShadow();  
   drawPlayer();
+  drawHotbar();
+
 
  
 
