@@ -55,18 +55,22 @@ Derrote os guardiões e colete as pedras para avançar de fase!
 - O código foi escrito com fins didáticos, visando a prática de conceitos de front-end e lógica de programação.
 
 👥 Contribuidores
-Bruno Torres Pacheco — P.O
+|Bruno Torres Pacheco — P.O
   Manutenção no Git, código e Imagens/ História
-Bruno Herold - Desenvolvedor
-  Criação de mapas e lógica das pedras
-Ricardo Henrique - Scrum Master
-  Movimentação e Organização
-Romulo Pardim - Desenvolvedor
-  Criação de mapas, combate
-Victor Kaua - Desenvolvedor
-  Hotbar e Spawn com cura
-Vitor Hugo - Desenvolvedor
-  Sprites e portal
 
+|Bruno Herold - Desenvolvedor
+  Criação de mapas e lógica das pedras
+
+|Ricardo Henrique - Scrum Master
+  Movimentação e Organização
+
+|Romulo Pardim - Desenvolvedor
+  Criação de mapas, combate
+
+|Victor Kaua - Desenvolvedor
+  Hotbar e Spawn com cura
+
+|Vitor Hugo - Desenvolvedor
+  Sprites e portal
 
 Professor Hugo Fumero — Orientação e Avaliação
