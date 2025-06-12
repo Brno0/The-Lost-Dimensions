@@ -124,26 +124,56 @@ bossSheet.src = "assets/bosses/frost_guardian_free_192x128_SpriteSheet.png";
 
 // SPRITESHEET DOS BOSS 2 E 3
 const boss2Sheet = new Image();
-boss2Sheet.src = "assets/bosses/boss2.png"; // coloque o caminho certo da sprite do boss2
+boss2Sheet.src = "assets/bosses/minotaur_288x160_SpriteSheet.png"; // coloque o caminho certo da sprite do boss2
 
 const boss3Sheet = new Image();
 boss3Sheet.src = "assets/bosses/boss3.png"; // coloque o caminho certo da sprite do boss3
 
 
-const bossAnimationData = {
-  frameWidth: 192,
-  frameHeight: 128,
-  frameCount: 10,
-  frameDelay: 6,
-  animations: {
-    idle: 0,
-    run: 1,
-    attack: 2,
-    dead: 3
+const bossAnimationData = [
+  {
+    frameWidth: 192,
+    frameHeight: 128,
+    frameCount: 10,
+    frameDelay: 6,
+    animations: {
+      idle: 0,
+      run: 1,
+      attack: 2,
+      dead: 3
+    },
+    currentFrame: 0,
+    frameCounter: 0
   },
-  currentFrame: 0,
-  frameCounter: 0
-};
+  {
+    frameWidth: 288,
+    frameHeight: 160,
+    frameCount: 7,
+    frameDelay: 6,
+    animations: {
+      idle: 0,
+      run: 1,
+      attack: 2,
+      dead: 3
+    },
+    currentFrame: 0,
+    frameCounter: 0
+  },
+  {
+    frameWidth: 288,
+    frameHeight: 160,
+    frameCount: 8,
+    frameDelay: 5,
+    animations: {
+      idle: 0,
+      run: 1,
+      attack: 2,
+      dead: 3
+    },
+    currentFrame: 0,
+    frameCounter: 0
+  }
+];
 
 
 function getHitbox(entity) {
@@ -510,20 +540,25 @@ function drawHealthBar(x, y, width, height, max, current, color) {
 
 function drawBossFromSheet(boss, sheet) {
   let state = "idle";
-  boss.facingLeft = player.x < boss.x;
+boss.facingLeft = player.x < boss.x;
 
-  if (boss.dead && boss.deathAnimationPlayed) return;
-  if (boss.dead && !boss.deathAnimationPlayed) state = "dead";
-  else if (boss.isAttacking) state = "attack";
-  else if (boss.isActive) state = "run";
+if (boss.dead) {
+  state = boss.deathAnimationPlayed ? "idle" : "dead";
+} else if (boss.isAttacking) {
+  state = "attack";
+} else if (boss.isActive) {
+  state = "run";
+}
 
-  const animLine = bossAnimationData.animations[state];
+
+  const animData = bossAnimationData[currentBackground];
+  const animLine = animData.animations[state];
   if (!sheet.complete) return;
 
-  const sx = bossAnimationData.currentFrame * bossAnimationData.frameWidth;
-  const sy = animLine * bossAnimationData.frameHeight;
-  const sw = bossAnimationData.frameWidth;
-  const sh = bossAnimationData.frameHeight;
+  const sx = animData.currentFrame * animData.frameWidth;
+  const sy = animLine * animData.frameHeight;
+  const sw = animData.frameWidth;
+  const sh = animData.frameHeight;
 
   const offsetX = (boss.width - sw) / 2;
   const offsetY = (boss.height - sh) / 2;
@@ -537,19 +572,20 @@ function drawBossFromSheet(boss, sheet) {
   ctx.drawImage(sheet, sx, sy, sw, sh, drawX, boss.y + offsetY, sw, sh);
   ctx.restore();
 
-  bossAnimationData.frameCounter++;
-  if (bossAnimationData.frameCounter >= bossAnimationData.frameDelay) {
-    bossAnimationData.frameCounter = 0;
-    if (state === "dead") {
-      if (bossAnimationData.currentFrame < bossAnimationData.frameCount - 1) {
-        bossAnimationData.currentFrame++;
-      } else {
-        boss.deathAnimationPlayed = true;
-      }
+  animData.frameCounter++;
+if (animData.frameCounter >= animData.frameDelay) {
+  animData.frameCounter = 0;
+  if (state === "dead") {
+    if (animData.currentFrame < animData.frameCount - 1) {
+      animData.currentFrame++;
     } else {
-      bossAnimationData.currentFrame = (bossAnimationData.currentFrame + 1) % bossAnimationData.frameCount;
+      boss.deathAnimationPlayed = true;
     }
+  } else {
+    animData.currentFrame = (animData.currentFrame + 1) % animData.frameCount;
   }
+}
+
 }
 
 
@@ -660,11 +696,12 @@ player.currentHealth = 100;
 updateBoss();
 if (!boss.dead) {
   if (currentBackground === 0) {
-    drawBossFromSheet(boss, bossSheet);
+    drawBossFromSheet(boss, bossSheet, 0);  // boss fase 1
+
   } else if (currentBackground === 1) {
-    drawBossFromSheet(boss, boss2Sheet);
+    drawBossFromSheet(boss, boss2Sheet, 1); // para o boss da fase 2
   } else if (currentBackground === 2) {
-    drawBossFromSheet(boss, boss3Sheet);
+    drawBossFromSheet(boss, boss3Sheet, 2); // boss fase 3
   }
 
   if (boss.isAttacking) {
@@ -768,8 +805,10 @@ if (!boss.dead && isColliding(player, bossHitbox)) {
     boss.lastAttackTime = now;
     boss.attackFrameCount = 0;
 
-    const attackFrames = bossAnimationData.frameCount; // total de frames de ataque
-    const attackFrameDelay = bossAnimationData.frameDelay;
+    const animData = bossAnimationData[currentBackground];
+    const attackFrames = animData.frameCount;
+    const attackFrameDelay = animData.frameDelay;
+
     const attackTotalDuration = attackFrames * attackFrameDelay * (1000 / 60); // ms
 
     setTimeout(() => {
