@@ -90,8 +90,8 @@ const player = {
 
 // Controle de cura no spawn
 let lastHealTime = 0;
-const healCooldown = 1000; // tempo entre curas (1 segundo)
-const healAmount = 5;     // quantidade de vida recuperada por vez
+const healCooldown = 900; // tempo entre curas (1 segundo)
+const healAmount = 8;     // quantidade de vida recuperada por vez
 
 
 function respawnPlayerAt(x, y) {
@@ -119,7 +119,14 @@ function respawnPlayerAt(x, y) {
 const portalConfigs = [
   { x: canvas.width - 120, y: 70 },                             // Fase 1
   { x: canvas.width / 2 - 64, y: canvas.height - 140 },         // Fase 2
+  { x: canvas.width / 2 - 64, y: canvas.height - 140 },         // Fase 3
 ];
+const spawnConfigs = [
+  { x: 90, y: 350 },     // fase 1
+  { x: 200, y: 300 },    // fase 2
+  { x: 150, y: 250 }     // fase 3
+];
+
 
 const portal = {
   x: portalConfigs[0].x,
@@ -476,13 +483,13 @@ if (keys["j"] && !isInSpawn) {
 
 const bosses = [
   {
-  x: canvas.width - 280,
-  y: 450 - 100 / 2,
+  x: canvas.width * 0.786,
+  y: canvas.height * 0.50,
   width: 150,
   height: 128,
   speed: 2.0,
-  maxHealth: 200,
-  currentHealth: 200,
+  maxHealth: 800,
+  currentHealth: 800,
   isActive: false,
   activatedOnce: false, 
   dead: false,
@@ -491,17 +498,20 @@ const bosses = [
   isAttacking: false,
   attackDuration: 400,
   facingLeft: true,
+  scale: 1.4,
+  currentAnimState: "idle",
+  currentFrame: 0,
+  frameCounter: 0
 },
 
   {
- x: 1300- 100 / 2,
-    y: 45 - 100 / 2,
+  x: canvas.width * 0.803,
+  y: canvas.height * -0.08,
     width: 80,
     height: 140,
-    color: "darkblue", // cor diferente pro boss da fase 2
     speed: 1.6,
-    maxHealth: 250,
-    currentHealth: 250,
+    maxHealth: 1000,
+    currentHealth: 1000,
     isActive: false,
     dead: false,
     attackCooldown: 1000, // 1 segundo entre ataques
@@ -511,16 +521,16 @@ const bosses = [
     attackCooldown: 1000, // 1 segundo entre ataques
     lastAttackTime: 0,
     facingLeft: true,
+    scale: 1.2,
 },
 {
-x: canvas.width - 240,
-  y: 450 - 100 / 2,
+  x: canvas.width * 0.808,
+  y: canvas.height * -0.10,
   width: 60,
   height: 120,
-  color: "darkred",
   speed: 2.0,
-  maxHealth: 200,
-  currentHealth: 200,
+  maxHealth: 1300,
+  currentHealth: 1300,
   isActive: false,
   activatedOnce: false, 
   dead: false,
@@ -529,6 +539,7 @@ x: canvas.width - 240,
   isAttacking: false,
   attackDuration: 600,
   facingLeft: true,
+  scale: 1.2,
 },
 
 ];
@@ -574,11 +585,19 @@ if (boss.dead) {
   state = "run";
 }
 
-  const animData = bossAnimationData[currentBackground];
-  const animLine = animData.animations[state];
+const animData = bossAnimationData[currentBackground];
+const animLine = animData.animations[state];
+
+// Se o estado mudou, reinicia animação
+if (boss.currentAnimState !== state) {
+  boss.currentAnimState = state;
+  boss.currentFrame = 0;
+  boss.frameCounter = 0;
+}
+
   if (!sheet.complete) return;
 
-  const sx = animData.currentFrame * animData.frameWidth;
+  const sx = boss.currentFrame * animData.frameWidth;
   const sy = animLine * animData.frameHeight;
   const sw = animData.frameWidth;
   const sh = animData.frameHeight;
@@ -592,22 +611,30 @@ if (boss.dead) {
   ctx.save();
   ctx.scale(scaleX, 1);
 
-  ctx.drawImage(sheet, sx, sy, sw, sh, drawX, boss.y + offsetY, sw, sh);
+  ctx.drawImage(
+  sheet,
+  sx, sy, sw, sh,
+  drawX,
+  boss.y + offsetY,
+  sw * boss.scale,
+  sh * boss.scale
+);
   ctx.restore();
 
-  animData.frameCounter++;
-if (animData.frameCounter >= animData.frameDelay) {
-  animData.frameCounter = 0;
+boss.frameCounter++;
+if (boss.frameCounter >= animData.frameDelay) {
+  boss.frameCounter = 0;
   if (state === "dead") {
-    if (animData.currentFrame < animData.frameCount - 1) {
-      animData.currentFrame++;
+    if (boss.currentFrame < animData.frameCount - 1) {
+      boss.currentFrame++;
     } else {
       boss.deathAnimationPlayed = true;
     }
   } else {
-    animData.currentFrame = (animData.currentFrame + 1) % animData.frameCount;
+    boss.currentFrame = (boss.currentFrame + 1) % animData.frameCount;
   }
 }
+
 
 }
 
@@ -799,14 +826,16 @@ if (boss.dead) {
   const config = portalConfigs[currentBackground] || portalConfigs[0];
   portal.x = config.x;
   portal.y = config.y;
-
- respawnPlayerAt(50, 50); // ou qualquer posição central que você queira
+  player.x = canvas.width * 0.2;
+  player.y = canvas.height * 0.7;
+ // ou qualquer posição central que você queira
 
 }
 
-  spawnPoint.x = 90;
-  spawnPoint.y = 105;
+  spawnPoint.x = spawnConfigs[currentBackground].x;
+  spawnPoint.y = spawnConfigs[currentBackground].y;
   spawnPoint.visible = true;
+
 
 
 updateBoss();
