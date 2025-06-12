@@ -2,6 +2,13 @@
 const canvas = document.getElementById("gameCanvas"); 
 const ctx = canvas.getContext("2d");
 
+let faseInicialAtiva = true;
+let tempoTransicao = 0;
+let faseTransicaoAtiva = false;
+let tempoTransicaoFase = 0;
+const tempoExibirMensagem = 2;
+const tempoExibirTransicao = 2;
+
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -122,10 +129,11 @@ spawnPoint.image.src = "assets/itens/spawn.png"; // Caminho da sua imagem
 const bossSheet = new Image();
 bossSheet.src = "assets/bosses/frost_guardian_free_192x128_SpriteSheet.png";
 
-// SPRITESHEET DOS BOSS 2 E 3
+// SPRITESHEET DOS BOSS (fase 2)
 const boss2Sheet = new Image();
 boss2Sheet.src = "assets/bosses/minotaur_288x160_SpriteSheet.png"; // coloque o caminho certo da sprite do boss2
 
+// SPRITESHEET DOS BOSS (fase 3)
 const boss3Sheet = new Image();
 boss3Sheet.src = "assets/bosses/boss3.png"; // coloque o caminho certo da sprite do boss3
 
@@ -550,7 +558,6 @@ if (boss.dead) {
   state = "run";
 }
 
-
   const animData = bossAnimationData[currentBackground];
   const animLine = animData.animations[state];
   if (!sheet.complete) return;
@@ -588,13 +595,42 @@ if (animData.frameCounter >= animData.frameDelay) {
 
 }
 
-
+function nomeFase(numero) {
+  const nomes = ["primeira", "segunda", "terceira"];
+  return nomes[numero] || '${numero + 1}ª';
+}
 
 // Loop principal
 function gameLoop() {
   updatePlayerPosition()
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
+  if (faseInicialAtiva || faseTransicaoAtiva) {
+    tempoTransicao += 1 / 60;
+    if (faseTransicaoAtiva) tempoTransicaoFase += 1 / 60;
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.font = '28px "Press Start 2P", monospace';
+    ctx.fillStyle = "#FFFFFF";
+    ctx.textAlign = "center";
+
+    const nomeFaseAtual = ["primeira", "segunda", "terceira"][currentBackground] || `${currentBackground + 1}ª`;
+    ctx.fillText(`Iniciando a ${nomeFaseAtual} fase.`, canvas.width / 2, canvas.height / 2);
+
+    if (faseInicialAtiva && tempoTransicao >= tempoExibirMensagem) {
+      faseInicialAtiva = false;
+    }
+
+    if (faseTransicaoAtiva && tempoTransicaoFase >= tempoExibirTransicao) {
+      faseTransicaoAtiva = false;
+      tempoTransicaoFase = 0;
+    }
+
+    requestAnimationFrame(gameLoop);
+    return;
+  }
 
   // Atualiza o boss da fase atual
   let boss = bosses[currentBackground];  // ⬅️ AQUI
@@ -672,8 +708,20 @@ if (boss.dead) {
 
   //Verificar colisão do portal
   if (boss.dead && specialStone.visible === false && isColliding(player, portal)) {
-  // Vai para a próxima fase
-  currentBackground = (currentBackground + 1) % backgrounds.length;
+  if (currentBackground === 2) {
+    window.location.href = "../pagina-final/html/index.html";
+  } else {
+    currentBackground++;
+    faseTransicaoAtiva = true;
+    tempoTransicaoFase = 0;
+
+    // Atualiza posição do portal com base na nova fase
+    const config = portalConfigs[currentBackground] || portalConfigs[0];
+    portal.x = config.x;
+    portal.y = config.y;
+
+    respawnPlayerAt(50, 50);
+  }
 
 
   // Atualiza posição do portal com base na nova fase
@@ -681,10 +729,7 @@ if (boss.dead) {
   portal.x = config.x;
   portal.y = config.y;
 
-
  respawnPlayerAt(50, 50); // ou qualquer posição central que você queira
-player.currentHealth = 100;
-
 
 }
 
@@ -713,8 +758,6 @@ if (!boss.dead) {
     0,
     Math.PI * 2
   );
-  ctx.fillStyle = "rgba(255, 165, 0, 0.3)";
-  ctx.fill();
  }
 }
 
@@ -725,7 +768,7 @@ if (spawnPoint.visible && isColliding(getHitbox(player), spawnPoint)) {
   const now = performance.now();
   if (now - lastHealTime >= healCooldown && player.currentHealth < 100) {
     player.currentHealth += healAmount;
-    if (player.currentHealth > 100) player.currentHealth = 100;
+    if (player.currentHealth > 100);
     lastHealTime = now;
     console.log("Cura gradual no Spawn! Vida atual:", player.currentHealth);
   }
